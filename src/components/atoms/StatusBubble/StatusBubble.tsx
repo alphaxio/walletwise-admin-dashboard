@@ -1,4 +1,4 @@
-const StatusBubble = ({ status }: { status: string }) => {
+const StatusBubble = ({ status }: { status?: string | null }) => {
   const statusStyles: Record<string, string> = {
     pending: "text-yellow-400 bg-yellow-500/10 border border-yellow-500/20",
     inactive: "text-yellow-400 bg-yellow-500/10 border border-yellow-500/20",
@@ -29,10 +29,11 @@ const StatusBubble = ({ status }: { status: string }) => {
   return (
     <div
       className={`rounded-full px-3 py-1 text-center w-fit min-w-32 whitespace-nowrap text-sm ${
-        statusStyles[status.toLowerCase()] || "text-red-400 bg-red-50"
+        (status && statusStyles[status.toLowerCase()]) ||
+        "text-gray-400 bg-gray-500/10 border border-gray-500/20"
       }`}
     >
-      {status}
+      {status || "N/A"}
     </div>
   );
 };
