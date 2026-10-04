@@ -1,5 +1,6 @@
 import { axiosInstance } from "@/lib/axiosInstance";
 import { fetchDataProps } from "@/lib/types";
+import type { SavingsTransactionDetails } from "../types/savings";
 import { format } from "date-fns";
 
 export const getSavings = async ({
@@ -41,7 +42,7 @@ export const getSavings = async ({
   }
 };
 
-export const getSavingsInfo = async ({ id }: { id: string }) => {
+export const getSavingsInfo = async ({ id }: { id: string }): Promise<SavingsTransactionDetails | null> => {
   try {
     const url = `/savings/transactions/${id}`;
     const { data } = await axiosInstance.get(url);

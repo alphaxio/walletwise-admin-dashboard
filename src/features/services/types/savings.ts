@@ -21,3 +21,35 @@ export interface SavingsTransactionType {
   created_at: string;
   savings_account_id: number;
 }
+
+export interface SavingsTransactionDetails {
+  id?: number | null;
+  userID?: string | null;
+  savings_account_id?: number | null;
+  transaction_type?: string | null;
+  transaction_category?: string | null;
+  amount?: string | number | null;
+  balance_before?: string | number | null;
+  balance_after?: string | number | null;
+  reference?: string | null;
+  transaction_created_at?: string | null;
+  plan_type?: string | null;
+  current_plan_balance?: string | number | null;
+  interest_rate?: string | number | null;
+  plan_status?: string | null;
+  plan_meta_data?: {
+    name?: string | null;
+    durationDays?: number | null;
+    maturityDate?: string | null;
+    interestAmount?: string | number | null;
+    interestPayoutMode?: string | null;
+    upfrontInterestPaid?: boolean | null;
+  } | null;
+  plan_created_at?: string | null;
+  user_uuid?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone_number?: string | null;
+  user_tag?: string | null;
+  user_flagged?: boolean | null;
+}
