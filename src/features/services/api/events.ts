@@ -106,6 +106,7 @@ export const getEventInfo = async ({ eventId }: { eventId: string }) => {
         ticket: { type: string; price: number; capacity: number },
         index: number,
       ) => {
+        if (typeof ticket?.type !== "string" || !ticket.type.trim()) return normalized;
         const sale = eventInfo.stats?.ticket_sales?.[index] ?? {};
         const sold = sale.sold ?? 0;
 

@@ -4,6 +4,7 @@ import { Exo_2 } from "next/font/google";
 import "../styles/globals.css";
 import "react-quill-new/dist/quill.snow.css";
 
+import BrowserErrorReporter from "@/components/BrowserErrorReporter";
 import QueryProvider from "@/components/QueryProvider";
 import { Providers } from "@/store/provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -50,6 +51,7 @@ export default function RootLayout({
             <ThemeProvider>
               {children}
               <Toaster />
+              <BrowserErrorReporter />
             </ThemeProvider>
           </Providers>
         </QueryProvider>

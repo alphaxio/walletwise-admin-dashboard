@@ -153,15 +153,15 @@ const PartnerEventTicketsTable = ({ eventId }: { eventId: string }) => {
             {tickets.length ? (
               tickets.map((ticket) => {
                 const customerName =
-                  ticket.name || ticket.custom_answers.fullName || "—";
+                  ticket.name || ticket.custom_answers?.fullName || "—";
                 const customerEmail =
-                  ticket.email || ticket.custom_answers.email || "—";
+                  ticket.email || ticket.custom_answers?.email || "—";
                 const phone =
                   ticket.phone_number ||
-                  ticket.custom_answers.phoneNumber ||
+                  ticket.custom_answers?.phoneNumber ||
                   "—";
                 const isValidated =
-                  ticket.attendance_status.toLowerCase() !== "pending" ||
+                  (ticket.attendance_status ?? "pending").toLowerCase() !== "pending" ||
                   ticket.attended_count > 0;
 
                 return (

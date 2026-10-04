@@ -1,3 +1,4 @@
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { ColumnDef, Table, flexRender } from "@tanstack/react-table";
 
 import { TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -39,7 +40,9 @@ const TableBodyWrap = ({ table, columns }: TableBodyWrapProps) => {
           >
             {row?.getVisibleCells().map((cell) => (
               <TableCell key={cell.id} className="max-w-lg whitespace-normal">
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                <ErrorBoundary compact resetKey={row.original}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </ErrorBoundary>
               </TableCell>
             ))}
           </TableRow>

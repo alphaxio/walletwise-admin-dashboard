@@ -17,7 +17,7 @@ export const useGetUserInfo = (userId: string) => {
     setCurrentPage,
   } = useTableState();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["user info", userId, currentPage, limit],
     queryFn: () =>
       getUserInfo({
@@ -33,6 +33,8 @@ export const useGetUserInfo = (userId: string) => {
   return {
     data,
     isLoading,
+    isError,
+    refetch,
     currentPage,
     limit,
     setLimit,

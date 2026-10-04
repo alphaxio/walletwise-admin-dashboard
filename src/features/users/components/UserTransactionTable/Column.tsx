@@ -172,15 +172,15 @@ export const Column = (hasPermission: boolean) => [
     id: "actions",
     cell: ({ row }: CellContext<TransactionType, unknown>) => {
       const transaction = row.original;
+      const service = findServiceName(transaction?.category);
+      if (!service || !transaction?.id) return <span className="text-gray-500">N/A</span>;
 
       return (
         <>
           <ColumnActionDropdown>
             <DropdownMenuItem>
               <Link
-                href={`/services/${findServiceName(
-                  transaction?.category,
-                )}/info/${transaction.id}`}
+                href={`/services/${service}/info/${transaction.id}`}
               >
                 View info
               </Link>

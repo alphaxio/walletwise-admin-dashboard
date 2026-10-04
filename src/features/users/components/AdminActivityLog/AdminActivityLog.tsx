@@ -68,7 +68,7 @@ const AdminActivityLog = ({
                         log.activity_type
                       )}`}
                     >
-                      {log.activity_type.replace(/_/g, " ")}
+                      {log.activity_type?.replace(/_/g, " ") || "N/A"}
                     </span>
                   </td>
                   <td className="px-6 py-4 dark:text-gray-300 text-gray-700">

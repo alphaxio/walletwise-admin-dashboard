@@ -1,5 +1,6 @@
 "use client";
 
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabType } from "@/lib/types";
 
@@ -36,7 +37,7 @@ const DynamicTabs = ({
         </TabsList>
         {tabs.map((tab) => (
           <TabsContent key={tab.value} value={tab.value}>
-            {tab.content}
+            <ErrorBoundary>{tab.content}</ErrorBoundary>
           </TabsContent>
         ))}
       </Tabs>
