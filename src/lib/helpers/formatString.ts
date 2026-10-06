@@ -1,3 +1,3 @@
-export function formatString(str: string) {
-  return str.replace(/_/g, " ");
+export function formatString(str?: string | null) {
+  return typeof str === "string" ? str.replace(/_/g, " ") : "N/A";
 }

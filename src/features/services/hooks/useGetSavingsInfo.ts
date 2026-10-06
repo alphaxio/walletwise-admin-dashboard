@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getSavingsInfo } from "../api/savings";
 
 export const useGetSavingsInfo = (id: string) => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["service info", id],
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ["savings transaction info", id],
     queryFn: () => getSavingsInfo({ id }),
     enabled: true,
     staleTime: 5 * 60 * 1000,
@@ -14,5 +14,7 @@ export const useGetSavingsInfo = (id: string) => {
   return {
     data,
     isLoading,
+    isError,
+    refetch,
   };
 };

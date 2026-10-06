@@ -2,7 +2,8 @@ import { services } from "../constants";
 import { SelectedValues, SortOption } from "../types";
 
 export function numberWithCommas(x: number) {
-  const num = parseFloat(x.toString());
+  if (x == null || !Number.isFinite(Number(x))) return "N/A";
+  const num = Number(x);
   return Number.isInteger(num)
     ? num.toLocaleString()
     : num.toLocaleString(undefined, {
@@ -36,9 +37,10 @@ export const hasAnySelectedValues = (
   return Object.values(selectedValues).some((value) => value);
 };
 
-export const findServiceName = (searchString: string) => {
+export const findServiceName = (searchString?: string | null) => {
+  if (typeof searchString !== "string" || !searchString.trim()) return "";
   const match = services.find((service) =>
-    service.name.toLowerCase().includes(searchString.toLowerCase())
+    service.name.toLowerCase().includes(searchString.trim().toLowerCase())
   );
 
   return match ? match.name : "";

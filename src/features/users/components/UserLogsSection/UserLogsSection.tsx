@@ -59,7 +59,7 @@ const UserLogsSection = ({ userLogs }: { userLogs: UserLogType[] }) => {
                         log?.action_type
                       )}`}
                     >
-                      {log?.action_type.replace(/_/g, " ")}
+                      {log?.action_type?.replace(/_/g, " ") || "N/A"}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-gray-700 dark:text-gray-300">

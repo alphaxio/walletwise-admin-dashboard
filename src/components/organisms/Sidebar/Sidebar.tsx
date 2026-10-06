@@ -7,6 +7,7 @@ import { canAccess } from "@/lib/helpers/canAccess";
 import { RootState } from "@/store";
 import { useSelector } from "react-redux";
 import { hasEventManagementAccess } from "@/features/auth/constants/eventManagementAccess";
+import { buildInfo } from "@/lib/buildInfo";
 // import { useDisputeNotifications } from "@/lib/hooks/useDisputeNotifications";
 
 interface DashboardSidebarProps {
@@ -57,6 +58,15 @@ const Sidebar = ({ isSidebarOpen }: DashboardSidebarProps) => {
             );
           })}
         </div>
+        <a
+          href="/api/version"
+          target="_blank"
+          rel="noreferrer"
+          title={`Commit: ${buildInfo.commit}\nBuilt: ${buildInfo.builtAt}`}
+          className="shrink-0 text-center text-xs text-gray-500 dark:text-gray-400 hover:underline"
+        >
+          Build<br />{buildInfo.commit.slice(0, 7)}
+        </a>
       </div>
     </aside>
   );

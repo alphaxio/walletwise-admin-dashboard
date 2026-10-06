@@ -1,5 +1,7 @@
 "use client";
 
+import ErrorFallback from "@/components/ErrorFallback";
+
 import AllTransactions from "../AllTransactions/AllTransactions";
 import DynamicTabs from "@/components/molecules/DynamicTabs/DynamicTabs";
 
@@ -18,6 +20,7 @@ const TransactionsWrapper = () => {
     handleSearchChange,
     data,
     isLoading,
+    isError,
     handleSearch,
     handleClear,
     currentPage,
@@ -106,6 +109,7 @@ const TransactionsWrapper = () => {
 
   return (
     <div className="space-y-6">
+      {isError && <ErrorFallback reset={() => { void refetch(); }} message="Unable to load transactions. Please try again." />}
       <DynamicTabs
         tabs={tabs}
         defaultTab={tab || defaultTab}

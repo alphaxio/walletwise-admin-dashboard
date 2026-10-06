@@ -1,5 +1,7 @@
 "use client";
 
+import ErrorBoundary from "@/components/ErrorBoundary";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import Container from "@/components/atoms/Container/Container";
@@ -16,6 +18,7 @@ const DashboardLayout = ({
   title: string;
   className?: string;
 }) => {
+  const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
@@ -34,7 +37,7 @@ const DashboardLayout = ({
           <main
             className={`flex-1 w-full max-w-full overflow-x-auto ${className}`}
           >
-            <Container className="xl:px-6">{children}</Container>
+            <Container className="xl:px-6"><ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary></Container>
           </main>
         </div>
       </div>

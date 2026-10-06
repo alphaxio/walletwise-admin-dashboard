@@ -1,6 +1,7 @@
 import { DateOptions, DateRange, FilterOption } from "../types";
 
 export const convertDateFormat = (oldDate: string) => {
+  if (!oldDate || Number.isNaN(new Date(oldDate).getTime())) return "N/A";
   const date = new Date(oldDate).toString().split(" ");
   const newFormat = ` ${date[2]}  ${date[1]}, ${date[3]}`;
   return newFormat;
@@ -8,6 +9,7 @@ export const convertDateFormat = (oldDate: string) => {
 
 export function formatDate(dateString: string) {
   const date = new Date(dateString);
+  if (!dateString || Number.isNaN(date.getTime())) return "N/A";
   const options: DateOptions = {
     year: "numeric",
     month: "short",
@@ -21,6 +23,7 @@ export function formatDate(dateString: string) {
 
 export function formatTime(dateString: string) {
   const date = new Date(dateString);
+  if (!dateString || Number.isNaN(date.getTime())) return "N/A";
   const options: DateOptions = {
     hour: "numeric",
     minute: "2-digit",
