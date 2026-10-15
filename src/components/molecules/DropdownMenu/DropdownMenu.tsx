@@ -5,7 +5,7 @@ import { FilterOption } from "@/lib/types";
 
 interface DropdownMenuProps {
   isOpen: boolean;
-  selectedFilter: FilterOption;
+  selectedFilter?: FilterOption;
   onSelect: (filter: FilterOption) => void;
 }
 

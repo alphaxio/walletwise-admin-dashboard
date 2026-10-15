@@ -1,5 +1,8 @@
 "use client";
 
+import FinancialList from '@/features/finance/components/FinancialList';
+import RateSettings from '@/features/finance/components/RateSettings';
+import RequestState from '@/features/finance/components/RequestState';
 import { AnimatePresence } from "framer-motion";
 
 import { useGetSavings } from "../../hooks/useGetSavings";
@@ -22,6 +25,7 @@ const SavingsWrapper = () => {
     handleSearchChange,
     data,
     isLoading,
+    isError,
     handleSearch,
     handleClear,
     currentPage,
@@ -41,17 +45,18 @@ const SavingsWrapper = () => {
       content: (
         <AnimatePresence>
           <div className="">
+            <RequestState pending={false} error={isError} retry={() => refetch()} />
             <SavingsSummaryWrapper
               loading={isLoading}
-              totalRevenue={data?.metrics.amounts_saved?.total_combined}
-              flexCount={data?.metrics.accounts_count?.flex}
-              flexRevenue={data?.metrics.amounts_saved?.flex}
-              lockCount={data?.metrics.accounts_count?.lock}
-              lockRevenue={data?.metrics.amounts_saved?.lock}
-              goalCount={data?.metrics.accounts_count?.goal}
-              goalRevenue={data?.metrics.amounts_saved?.goal}
-              ajoCount={data?.metrics.accounts_count?.ajo}
-              ajoRevenue={data?.metrics.amounts_saved?.ajo}
+              totalRevenue={data?.metrics?.amounts_saved?.total_combined}
+              flexCount={data?.metrics?.accounts_count?.flex}
+              flexRevenue={data?.metrics?.amounts_saved?.flex}
+              lockCount={data?.metrics?.accounts_count?.lock}
+              lockRevenue={data?.metrics?.amounts_saved?.lock}
+              goalCount={data?.metrics?.accounts_count?.goal}
+              goalRevenue={data?.metrics?.amounts_saved?.goal}
+              ajoCount={data?.metrics?.accounts_count?.ajo}
+              ajoRevenue={data?.metrics?.amounts_saved?.ajo}
               onClick={handleStatusChange}
             />
             <SavingsTable
@@ -88,11 +93,14 @@ const SavingsWrapper = () => {
         </AnimatePresence>
       ),
     },
+    {value: 'plans', label: 'Active Plans', content: <FinancialList resource="savings/plans" />},
+    {value: 'rates', label: 'Interest Rates & Rules', content: <RateSettings type="savings" />},
+    {value: 'accruals', label: 'Interest Accrual & Audit', content: <FinancialList resource="savings/accruals" />},
   ];
 
   return (
     <ServiceLayout
-      title={`Savings Transactions`}
+      title="Savings"
       tabs={tabs}
       defaultTab={"history"}
       onClick={handleSwithTab}

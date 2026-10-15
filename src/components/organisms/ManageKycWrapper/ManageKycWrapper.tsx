@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import PageTitle from "@/components/atoms/PageTitle/PageTitle";
 import KYCSummary from "@/components/molecules/KYCSummary/KYCSummary";
 import KYCTable from "@/components/molecules/KYCTable/KYCTable";
@@ -35,6 +37,7 @@ const ManageKycWrapper = () => {
         title="KYC Management"
         description="Manage and track users KYC details"
       />
+      <Link href="/manage-usd-kyc" className="inline-block underline">Review USD onboarding KYC</Link>
       <KYCSummary
         tierCounts={data?.tierCounts}
         isLoading={isPending}

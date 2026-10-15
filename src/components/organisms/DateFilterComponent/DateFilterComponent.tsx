@@ -17,13 +17,16 @@ interface DateFilterProps {
   onDateChange?: (value: DateFilterValue) => void;
   className?: string;
   maxDays?: number;
+  placeholder?: string;
 }
 
 const DateFilterComponent = ({
   onDateChange,
   className = "",
   maxDays,
+  placeholder,
 }: DateFilterProps) => {
+  const [hasSelection, setHasSelection] = useState(!placeholder);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<FilterOption>("today");
   const [dateRange, setDateRange] = useState<DateRange>(getDateRange("today"));
@@ -70,7 +73,7 @@ const DateFilterComponent = ({
       setCustomStart(null);
       setCustomEnd(null);
     } else {
-      if (filter === selectedFilter) return; // 🛑 prevent unnecessary update
+      if (filter === selectedFilter && hasSelection) return; // 🛑 prevent unnecessary update
       const range = getDateRange(filter);
 
       setSelectedFilter((prev) => {
@@ -91,6 +94,7 @@ const DateFilterComponent = ({
       setIsOpen(false);
       setShowCalendar(false);
 
+      setHasSelection(true);
       onDateChange?.({ label: filter, dateRange: range });
     }
   };
@@ -127,6 +131,7 @@ const DateFilterComponent = ({
         const range = { start: customStart, end: date };
         setDateRange(range);
         setSelectedFilter("custom");
+        setHasSelection(true);
         onDateChange?.({ label: "custom", dateRange: range });
         setShowCalendar(false);
       }
@@ -134,6 +139,7 @@ const DateFilterComponent = ({
   };
 
   const getDisplayText = () => {
+    if (!hasSelection && !showCalendar) return placeholder;
     if (selectedFilter === "custom") {
       if (!customStart || !customEnd) return "Custom range";
       return formatDateRange(dateRange.start, dateRange.end);
@@ -167,7 +173,7 @@ const DateFilterComponent = ({
 
           <DropdownMenu
             isOpen={isOpen}
-            selectedFilter={selectedFilter}
+            selectedFilter={hasSelection ? selectedFilter : undefined}
             onSelect={handleFilterSelect}
           />
         </div>
