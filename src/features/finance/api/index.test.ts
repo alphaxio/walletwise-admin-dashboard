@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fetchList, fetchRecord } from './index';
+import { fetchList, fetchRecord, mutateRecord } from './index';
+import { walletActionRequest, type WalletAction } from '../helpers/walletActions';
 import type { ListFilters } from '../types';
-const { get } = vi.hoisted(() => ({ get: vi.fn() }));
-vi.mock('@/lib/axiosInstance', () => ({ axiosInstance: { get } }));
+const { get, request } = vi.hoisted(() => ({ get: vi.fn(), request:vi.fn() }));
+vi.mock('@/lib/axiosInstance', () => ({ axiosInstance: { get, request } }));
 beforeEach(() => {
   get.mockReset();
   get.mockResolvedValue({data:{data:{wallets:[],pagination:{totalPages:1,totalRecords:0},summary:{}}}});
@@ -33,5 +34,15 @@ describe('USD KYC wallet details', () => {
   it('keeps unrelated detail requests on their existing routes', async () => {
     await fetchRecord('usd/accounts/13');
     expect(get).toHaveBeenCalledWith('/usd/accounts/13',{signal:undefined});
+  });
+});
+
+describe('wallet mutations use PATCH over HTTP', () => {
+  it.each(['approve','reject','freeze','unfreeze'] as WalletAction[])('sends %s through PATCH', async action => {
+    request.mockResolvedValue({data:{success:true}});
+    await mutateRecord(walletActionRequest('13',action,'A valid reason'));
+    const endpoint = action === 'freeze' || action === 'unfreeze' ? 'freeze' : 'status';
+    const requiresReason = action === 'freeze' || action === 'reject';
+    expect(request).toHaveBeenLastCalledWith({url:`/usd/wallets/13/${endpoint}`,method:'patch',data:{action,...(requiresReason ? {reason:'A valid reason'} : {})}});
   });
 });

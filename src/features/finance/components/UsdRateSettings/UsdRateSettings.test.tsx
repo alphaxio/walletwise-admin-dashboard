@@ -1,9 +1,9 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import UsdRateSettings from './UsdRateSettings';
-import { usdRateRows } from '../constants/usdRates';
+import { usdRateRows } from '../../constants/usdRates';
 const { mutate, data } = vi.hoisted(() => ({ mutate: vi.fn(), data: {} as Record<string, unknown> }));
-vi.mock('../hooks/useFinancialData', () => ({ useFinancialRecord: () => ({data,isPending:false,isError:false,refetch:vi.fn()}), useFinancialMutation: () => ({mutate,isPending:false}) }));
+vi.mock('../../hooks/useFinancialData', () => ({ useFinancialRecord: () => ({data,isPending:false,isError:false,refetch:vi.fn()}), useFinancialMutation: () => ({mutate,isPending:false}) }));
 afterEach(cleanup);
 beforeEach(() => {
   mutate.mockClear();

@@ -1,6 +1,6 @@
 "use client";
 
-import UsdOverviewCard from "@/features/finance/components/UsdOverviewCard";
+import UsdOverviewCard from "@/features/finance/components/UsdOverviewCard/UsdOverviewCard";
 import { motion } from "framer-motion";
 import { DollarSign, PoundSterling, Ticket, User2 } from "lucide-react";
 

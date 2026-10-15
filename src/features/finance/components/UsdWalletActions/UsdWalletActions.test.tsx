@@ -2,7 +2,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/re
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import UsdWalletActions from './UsdWalletActions';
 const { mutate } = vi.hoisted(() => ({mutate:vi.fn()}));
-vi.mock('../hooks/useFinancialData', () => ({useFinancialMutation:() => ({mutate,isPending:false})}));
+vi.mock('../../hooks/useFinancialData', () => ({useFinancialMutation:() => ({mutate,isPending:false})}));
 afterEach(cleanup);
 beforeEach(() => mutate.mockClear());
 describe('USD wallet confirmation actions', () => {

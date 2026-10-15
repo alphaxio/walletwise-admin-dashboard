@@ -506,3 +506,31 @@ The card fetches the unfiltered USD transaction summary only when mounted inside
 that permission gate. Revenue uses `summary.totalFees`; inflow uses
 `summary.totalVolumeIn` and is labeled separately. Missing values show unavailable,
 never a conversion from NGN or a wallet balance. Zero totals display as zero.
+
+### Financial list responsibilities
+
+`FinancialList` composes summary, filters, table, pagination, exports, request
+states, and the selected-record detail view. `FinancialFilters` owns draft search
+and calendar UI; `constants/listFilters.ts` defines per-resource filter options.
+`FinancialTable` renders rows, `FinancialCell` formats values and profile links,
+and `FinancialRowActions` selects the appropriate action control.
+`FinancialPagination` adapts server pagination to the existing shared component.
+`useAccrualExport` manages export requests, errors, and duplicate-click protection;
+`AccrualExportActions` presents the export controls. Wallet mutations remain
+separate and use PATCH for both `/usd/wallets/:id/status` and
+`/usd/wallets/:id/freeze`.
+
+### Component folders and data access
+
+Each finance component lives in `components/<Name>/<Name>.tsx`; any component
+tests live beside it as `<Name>.test.tsx`. Shared components added for finance
+follow the same folder convention. Imports reference the named component file.
+Presentation components use feature hooks; HTTP functions stay in `api/`, query
+and mutation orchestration and form workflows stay in `hooks/`, transformations
+stay in `helpers/`, and configuration stays in `constants/`.
+
+Examples include `useUsdOverviewCard`, `useUsdWalletActions`,
+`useUsdRateSettings`, `useSavingsRateSettings`, `useFinancialDetail`, and
+`useUserProfileLink`. ESLint prevents the new component files from importing API
+modules, Axios, or TanStack Query directly, and from calling `fetch`. Tests are
+excluded so they can mock and verify those boundaries.

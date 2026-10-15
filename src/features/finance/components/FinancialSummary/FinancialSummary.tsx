@@ -1,6 +1,6 @@
-import { metrics } from '../constants/lists';
-import { display, money } from '../helpers/records';
-import type { RecordData, Resource } from '../types';
+import { metrics } from '../../constants/lists';
+import { display, money } from '../../helpers/records';
+import type { RecordData, Resource } from '../../types/index';
 
 export default function FinancialSummary({ resource, values, status, onStatusChange }: {
   resource: Resource;

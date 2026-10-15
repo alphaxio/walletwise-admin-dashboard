@@ -1,4 +1,4 @@
-import UsdServiceWrapper from '@/features/finance/components/UsdServiceWrapper';
+import UsdServiceWrapper from '@/features/finance/components/UsdServiceWrapper/UsdServiceWrapper';
 export default async function Page({ searchParams }: {
     searchParams: Promise<{
         userId?: string;

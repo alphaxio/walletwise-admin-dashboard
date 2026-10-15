@@ -1,8 +1,8 @@
 "use client";
 
-import FinancialList from '@/features/finance/components/FinancialList';
-import RateSettings from '@/features/finance/components/RateSettings';
-import RequestState from '@/features/finance/components/RequestState';
+import FinancialList from '@/features/finance/components/FinancialList/FinancialList';
+import RateSettings from '@/features/finance/components/RateSettings/RateSettings';
+import RequestState from '@/features/finance/components/RequestState/RequestState';
 import { AnimatePresence } from "framer-motion";
 
 import { useGetSavings } from "../../hooks/useGetSavings";

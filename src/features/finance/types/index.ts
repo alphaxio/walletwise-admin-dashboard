@@ -29,3 +29,5 @@ export interface Field {
     currency?: 'USD' | 'NGN';
     filterStatus?: string;
 }
+
+export interface DetailField { label: string; path: string; format?: 'date' | 'status' | 'usd'; }
