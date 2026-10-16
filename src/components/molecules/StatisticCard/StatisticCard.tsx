@@ -6,7 +6,7 @@ interface StatisticCardProps {
   icon: React.ReactElement;
   color: "green" | "yellow" | "red" | "blue" | "orange" | "purple";
   title: string;
-  value: number;
+  value: number | null;
   currency?: string;
   onClick?: () => void;
   percentage?: number;
@@ -61,7 +61,7 @@ const StatisticCard = ({
       <div className="space-y-2">
         <h1 className="text-2xl font-bold dark:text-gray-200">
           {currency && currency}
-          {value && numberWithCommas(value)}
+          {value == null || !Number.isFinite(Number(value)) ? "—" : numberWithCommas(value)}
         </h1>
         <h6 className="text-sm font-bold text-gray-600 dark:text-gray-300">
           {secondCurrency && secondCurrency}

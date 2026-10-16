@@ -1,6 +1,15 @@
 const StatusBubble = ({ status }: { status?: string | null }) => {
-  const label = typeof status === "string" && status.trim() ? status.trim() : "N/A";
+  const rawLabel = typeof status === "string" && status.trim() ? status.trim() : "N/A";
+  const label = rawLabel.toLowerCase() === "pending_kyc" ? "Pending" : rawLabel;
   const statusStyles: Record<string, string> = {
+    critical: "text-red-400 bg-red-500/10 border border-red-500/20",
+    suspicious: "text-orange-400 bg-orange-500/10 border border-orange-500/20",
+    high: "text-red-400 bg-red-500/10 border border-red-500/20",
+    medium: "text-yellow-400 bg-yellow-500/10 border border-yellow-500/20",
+    low: "text-green-400 bg-green-500/10 border border-green-500/20",
+    rejected: "text-red-400 bg-red-500/10 border border-red-500/20",
+    frozen: "text-blue-400 bg-blue-500/10 border border-blue-500/20",
+    kyc_approved: "text-green-400 bg-green-500/10 border border-green-500/20",
     pending: "text-yellow-400 bg-yellow-500/10 border border-yellow-500/20",
     inactive: "text-yellow-400 bg-yellow-500/10 border border-yellow-500/20",
     in_transit: "text-blue-400 bg-blue-500/10 border border-blue-500/20",

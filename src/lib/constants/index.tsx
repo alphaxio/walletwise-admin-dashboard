@@ -127,6 +127,11 @@ export const links = [
         icon: <Users className="w-4 h-4" />,
       },
       {
+        name: "USD KYC",
+        link: "/manage-usd-kyc",
+        icon: <BookmarkCheck className="w-4 h-4" />,
+      },
+      {
         name: "manage kyc",
         link: "/manage-kyc",
         icon: <BookmarkCheck className="w-4 h-4" />,
@@ -161,6 +166,7 @@ export const links = [
 ];
 
 export const services = [
+  { name: "USD accounts", link: "/services/usd-accounts" },
   {
     name: "airtime",
     link: "/services/airtime",

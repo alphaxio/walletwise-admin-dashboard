@@ -326,3 +326,211 @@ API returned a valid image URL.
 
 Check for browser-only APIs in server components and ensure interactive
 components include the `"use client"` directive.
+
+## USD accounts and savings management
+
+New routes:
+
+| Route | Purpose |
+| --- | --- |
+| `/manage-usd-kyc` | USD onboarding metrics, search, document review, source of funds, approval/rejection and Miden resync. |
+| `/services/usd-accounts` | USD transaction ledger (default), rates/fees, and USD KYC navigation. |
+| `/services/usd-accounts/transactions` | Settlement ledger, rail/status filters, failed-provider diagnostics; accepts `?userId=…`. |
+| `/services/usd-accounts/settings` | Live base rate, buy/sell spreads, USD fees and returned audit log. |
+
+The existing `/services/savings` page now includes **Active Plans**, **Interest
+Rates & Rules**, and **Interest Accrual & Audit** alongside transaction history.
+Plan details include contributions and schedule. Manual payouts require maturity
+eligibility; emergency liquidation requires a reason. CSV and Excel exports fetch
+all pages matching the current accrual filters, not only the visible page.
+
+### API integration contract
+
+This repository implements the frontend. The dashboard backend must implement
+these endpoints relative to `NEXT_PUBLIC_BACKEND_BASE_URL`:
+
+```text
+GET  /usd/wallets                      # USD KYC listing
+GET  /usd/wallets/:id                  # USD KYC details
+PATCH /usd/wallets/:id/status         { action: approve | reject, reason? }
+PATCH /usd/wallets/:id/freeze         { action: freeze | unfreeze, reason? }
+GET  /usd/accounts
+GET  /usd/accounts/:userId
+PATCH /usd/accounts/:userId/status    { status: active | frozen | suspended }
+GET  /usd/transactions
+GET  /usd/rates
+PUT  /usd/rates
+GET  /savings/rates
+PUT  /savings/rates
+GET  /savings/plans
+GET  /savings/plans/:id
+POST /savings/plans/:id/payout
+POST /savings/plans/:id/force-liquidate { reason }
+GET  /savings/accruals
+```
+
+The USD ledger uses the supplied `/usd/transactions` response contract. The PRD
+does not specify an accrual endpoint path; `/savings/accruals` is proposed here.
+Verify these contracts with the backend before production use.
+
+Responses use `{ data: ... }`. Lists accept `page`, `limit`, `search`, `status`,
+`rail`, `planType`, and `userId` as appropriate. List data contains `records`
+(or `accounts`, `submissions`, `transactions`, `plans`, or `logs`),
+`pagination: { total_pages, total_count }`, and optional `metrics`.
+Detail and rate responses contain an object in `data`.
+
+UI fields use camelCase:
+
+- Common user: `user: { id, name, email }`; USD rows require `userId` or `user_id`.
+- KYC: `submittedAt`, `idCountry`, `status`, `midenCustomerId`,
+  `providerKycStatus`, `documents: { idFront, idBack, proofOfAddress }`,
+  `sourceOfFunds: { employmentStatus, expectedMonthlyInflow, primaryPurpose, occupation }`.
+  Metrics: `pendingReview`, `approvedToday`, `rejected`, `totalCustomers`.
+- Accounts: `balance`, `accountNumber`, `routingNumber`, `bankName`, `createdAt`,
+  `midenCustomerId`, `midenWalletId`, `cryptoDepositAddress`, `beneficiaries`.
+  Metrics: `totalBalance`, `activeAccounts`, `monthlyInflow`, `monthlyOutflow`,
+  `activationFees` (NGN).
+- USD ledger: numeric `id`, `transaction_id` (displayed transaction reference),
+  `first_name`, `last_name`, `email`, `user_tag`, `photo_url`, `amount`, `fee`,
+  `commission`, `type`, `category`, `balance`, `date`, `status`, and `details`.
+  Provider fees come from `details.provider_fee`; missing fees remain unavailable.
+  Pagination uses `totalRecords`, `currentPage`, `totalPages`, and `limit`.
+  Summary uses `totalTransactions`, `totalVolumeIn`, `totalVolumeOut`, `totalFees`,
+  and `totalCommission`. The resource adapter preserves the raw record and details
+  while adapting user identity, provider fee, transaction reference, and date for UI.
+  Failed transactions may additionally supply `providerError` or `provider_error`.
+- Plans: `id`, `title`, `planType`, `principal`, `interestAccrued`, `payoutAmount`,
+  `startDate`, `maturityDate`, `status`, `payoutEligible`, `contributions`, `schedule`.
+- Accrual logs: `date`, `planType`, `accountsCount`, `interestCalculated`,
+  `interestCredited`, `status`.
+- USD rates use the API's snake_case keys: `buy_rate`, `sell_rate`, `buy_fee`,
+  `creation_fee`, `monthly_fee`, `ach_fee`, `wire_fee`, `swift_fee`,
+  `internal_transfer_fee`, `network_transfer_fee`, `ngn_transfer_fee`, and matching
+  `provider_…` keys, plus `id`, `currency`, and `updated_at`. Customer values are
+  editable; provider values are displayed read-only. Updates submit changed
+  customer fields using their original snake_case keys. Rate inputs retain four
+  decimal places; fee inputs use two. No live-market rate is inferred from these
+  stored provider values.
+- Savings rates: `flexApy`, `goalApy`, `lock30To60Apy`, `lock61To90Apy`,
+  `lock91To180Apy`, `lock181To365Apy`, `earlyLiquidationPenalty`,
+  `penaltyMode` (`percentage` or `forfeit_interest`), optional `auditLog`.
+
+The backend owns authorization, Miden synchronization, notifications, audit
+persistence, transaction atomicity, restriction enforcement, and duplicate-payout
+prevention. No provider secret is needed in the browser. These workflows use the
+existing authenticated Axios client and route protection; backend permissions
+must be enforced for every read and mutation.
+
+### Architecture and recovery
+
+`src/features/finance` separates contracts, Axios requests, normalization helpers,
+query/mutation hooks, and composed UI. Existing buttons, inputs, tables, dialogs,
+status atoms, dashboard/service templates, and tab error boundaries are reused.
+`DocumentInspector` is a reusable molecule with zoom, rotation, fullscreen and an
+original-document link for PDFs. Missing data displays as unavailable rather than
+zero. Failed requests show a retry state; render failures use the dashboard and
+tab error boundaries. Financial mutations refresh all finance queries and savings
+history. Query keys include the resource and filters; requests support cancellation.
+
+USD transaction user names, emails, and tags open `/manage-user/info/:userId`.
+When a row omits its user ID, clicking resolves an exact email match through
+`GET /users?search=…` and caches the resolved ID. Missing or failed matches show
+a retryable notification; transaction IDs are never used as user IDs.
+
+### Shared presentation and persistent tabs
+
+Finance tables place their date column first and reuse `TableDate`, `SearchInput`,
+`TableLoader`, and `PaginationComponent`. Dates in financial details and rate
+metadata also use the existing date formatter.
+
+`DynamicTabs` persists the selected tab in `?tab=…`, preserves other query
+parameters, restores it on refresh, and follows browser back/forward navigation.
+Nested virtual-card and transfer tabs use `virtualTab` and `transferType` so they
+can coexist with the main tab. Default and invalid tab URLs are canonicalized to
+a valid tab. The table-state URL updater preserves tab navigation without
+continually overwriting it from stale query state.
+
+USD KYC is now `/manage-usd-kyc`, which has a distinct sidebar path from
+`/manage-kyc`. The previous `/manage-kyc/usd` URL redirects to the new route.
+
+The USD KYC listing uses `GET /usd/wallets`, with `page`, `limit`, `status`,
+`search`, `startDate`, and `endDate` (`YYYY-MM-DD`). The listing starts at
+page 1 with 10 rows and no status parameter (all wallets). Selecting a status
+from a summary card fetches that status and resets pagination to page 1. Supported status filters are `pending_kyc`,
+`kyc_approved`, `active`, `rejected`, and `frozen`. Search accepts names, emails,
+user tags, or Miden customer IDs. KYC details use `GET /usd/wallets/:id`, using the selected wallet row ID
+when available. KYC approval/rejection uses `/usd/wallets/:id/status`; freeze/unfreeze uses
+`/usd/wallets/:id/freeze`. Requests use the configured API
+base URL and existing Bearer-token interceptor; localhost is not hardcoded.
+
+The KYC detail view uses the supplied wallet detail contract: `user.fullName`,
+`firstName`, `middleName`, `lastName`, `phoneNumber`, `userTag`, `dob`, and `tier`;
+`kycDocuments.govIdImageFront`, `govIdImageBack`, `proofOfAddressDocument`,
+`bvnOrTaxId`, and `submittedAt`; `bankDetails` including account/routing numbers,
+beneficiary and bank addresses; `cryptoAddress`; and nested `security` fields.
+Missing documents and null address/source-of-funds profiles show unavailable
+states. A selfie is not inferred from the user's profile photo. Wallet IDs stay
+separate from user IDs used for profile links and existing KYC actions.
+
+The USD wallet list adapter maps the supplied flat `first_name`, `last_name`,
+`email`, `user_tag`, `phone_number`, Miden identifiers, `created_at`, bank account,
+and restriction/threat fields into the table view while preserving original data.
+The summary displays `totalAccounts`, `pendingKyc`, `kycApproved`, `active`,
+`rejected`, `frozen`, and `totalBalance`. Pagination uses filtered `totalRecords`,
+independently of the summary's global account count. The wallet row `id` is used
+for KYC details, while profile navigation resolves the user by email.
+
+USD KYC status filtering uses the summary cards: Pending KYC, KYC approved,
+Active, Rejected, and Frozen select their corresponding server status, while
+Total accounts clears it. Clickable cards provide hover, focus, and selected
+states; Total USD balance remains informational. The KYC status dropdown is
+removed. Date filtering reuses `DateFilterComponent`, including its presets and
+custom calendar, and sends `startDate`/`endDate` in `YYYY-MM-DD` format. It starts
+with All dates; Clear filters resets both the status selection and date picker.
+
+The KYC table uses the existing three-dot `ColumnActionDropdown` for Review,
+Approve KYC / Decline KYC (pending submissions), and Freeze / Unfreeze actions.
+The detail view shares the same `UsdWalletActions` component. Both endpoints use
+PATCH and the selected wallet ID. Approval sends `{ action: "approve" }`;
+decline sends `{ action: "reject", reason }`; freeze sends `{ action: "freeze",
+reason }`; unfreeze sends `{ action: "unfreeze" }`. Every action opens the shared
+`ConfirmAction` modal. Decline and freeze require a nonblank textarea reason.
+Failed requests retain the modal and reason for retry; successful requests close
+it and invalidate the finance queries to refresh the table and details.
+
+The USD service no longer includes an Accounts tab; its default view is the
+transaction ledger. An old `?tab=accounts` selection falls back to Transactions.
+The overview includes a Total USD revenue card in the same permission gate as
+Total revenue and Total profit (`admin_management.read`, `.write`, or `.create`).
+The card fetches the unfiltered USD transaction summary only when mounted inside
+that permission gate. Revenue uses `summary.totalFees`; inflow uses
+`summary.totalVolumeIn` and is labeled separately. Missing values show unavailable,
+never a conversion from NGN or a wallet balance. Zero totals display as zero.
+
+### Financial list responsibilities
+
+`FinancialList` composes summary, filters, table, pagination, exports, request
+states, and the selected-record detail view. `FinancialFilters` owns draft search
+and calendar UI; `constants/listFilters.ts` defines per-resource filter options.
+`FinancialTable` renders rows, `FinancialCell` formats values and profile links,
+and `FinancialRowActions` selects the appropriate action control.
+`FinancialPagination` adapts server pagination to the existing shared component.
+`useAccrualExport` manages export requests, errors, and duplicate-click protection;
+`AccrualExportActions` presents the export controls. Wallet mutations remain
+separate and use PATCH for both `/usd/wallets/:id/status` and
+`/usd/wallets/:id/freeze`.
+
+### Component folders and data access
+
+Each finance component lives in `components/<Name>/<Name>.tsx`; any component
+tests live beside it as `<Name>.test.tsx`. Shared components added for finance
+follow the same folder convention. Imports reference the named component file.
+Presentation components use feature hooks; HTTP functions stay in `api/`, query
+and mutation orchestration and form workflows stay in `hooks/`, transformations
+stay in `helpers/`, and configuration stays in `constants/`.
+
+Examples include `useUsdOverviewCard`, `useUsdWalletActions`,
+`useUsdRateSettings`, `useSavingsRateSettings`, `useFinancialDetail`, and
+`useUserProfileLink`. ESLint prevents the new component files from importing API
+modules, Axios, or TanStack Query directly, and from calling `fetch`. Tests are
+excluded so they can mock and verify those boundaries.

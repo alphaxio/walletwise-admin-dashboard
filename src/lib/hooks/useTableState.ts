@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createAuthCookie, readAuthCookie } from "../helpers/cookie";
 import { DateFilterValue } from "../types";
@@ -6,6 +6,9 @@ import { DateFilterValue } from "../types";
 export const useTableState = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const latestSearchParams = useRef(searchParams);
+  latestSearchParams.current = searchParams;
 
   const savedLimit = readAuthCookie("limit");
 
@@ -109,7 +112,7 @@ export const useTableState = () => {
   };
 
   const updateUrl = useCallback(() => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(latestSearchParams.current.toString());
 
     params.set("page", String(currentPage));
     params.set("limit", String(limit));
@@ -129,11 +132,12 @@ export const useTableState = () => {
     if (transferType) params.set("transferType", transferType);
     else params.delete("transferType");
 
-    router.replace(`?${params.toString()}`);
+    if (params.toString() !== latestSearchParams.current.toString()) {
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
   }, [
     router,
     search,
-    searchParams,
     limit,
     currentPage,
     status,

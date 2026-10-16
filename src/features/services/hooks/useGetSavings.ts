@@ -32,6 +32,7 @@ export const useGetSavings = () => {
 
   const { data, isPending, isLoading, isError, error, refetch } = useQuery({
     queryKey: [
+      "savings",
       submittedQuery,
       limit,
       currentPage,

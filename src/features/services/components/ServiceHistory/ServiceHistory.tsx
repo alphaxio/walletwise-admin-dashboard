@@ -79,6 +79,7 @@ const ServiceHistory = ({
       <div className="space-y-2 pt-6">
         {showTransferTab && (
           <DynamicTabs
+            urlKey="transferType"
             tabs={transferTab}
             defaultTab={transferType}
             onClick={handleSwitchTransferType}

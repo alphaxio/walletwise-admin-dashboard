@@ -21,7 +21,7 @@ const VirtualLayout = ({
           {title}
         </h2>
       </div>
-      <DynamicTabs tabs={tabs} defaultTab={defaultTab} onClick={onClick} />
+      <DynamicTabs urlKey="virtualTab" tabs={tabs} defaultTab={defaultTab} onClick={onClick} />
     </div>
   );
 };
