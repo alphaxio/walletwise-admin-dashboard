@@ -46,7 +46,10 @@ export function useFinancialMutation() {
       await client.invalidateQueries({ queryKey: ["savings"] });
       toast.success("Changes saved successfully");
     },
-    onError: () =>
-      toast.error("The operation failed. Please retry or contact support."),
+    // Show the API's own message (e.g. why a USD KYC approval failed) when it sends one
+    onError: (error: unknown) => {
+      const message = (error as { response?: { data?: { message?: unknown } } })?.response?.data?.message;
+      toast.error(typeof message === "string" && message.trim() ? message : "The operation failed. Please retry or contact support.");
+    },
   });
 }

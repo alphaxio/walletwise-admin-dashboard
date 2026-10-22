@@ -27,6 +27,26 @@ describe('USD wallet confirmation actions', () => {
     expect(mutate).toHaveBeenCalledWith({path:`usd/wallets/13/${endpoint}`,method:'patch',body:{action,reason:'Please upload a recent document.'}},expect.any(Object));
     expect(screen.getByRole('alertdialog')).toBeTruthy();
   });
+  it('declines with fix items and optional notes, without a reason', () => {
+    render(<UsdWalletActions walletId="13" status="pending_kyc" inline />);
+    fireEvent.click(screen.getByRole('button',{name:'Decline KYC'}));
+    const continueButton=screen.getByRole('button',{name:'Continue'}) as HTMLButtonElement;
+    expect(continueButton.disabled).toBe(true);
+    fireEvent.click(screen.getByRole('checkbox',{name:'Back of ID'}));
+    fireEvent.click(screen.getByRole('checkbox',{name:'Home address'}));
+    fireEvent.change(screen.getByRole('textbox',{name:'Note for Back of ID'}),{target:{value:'  You uploaded the front twice.  '}});
+    expect(continueButton.disabled).toBe(false);
+    fireEvent.click(continueButton);
+    expect(mutate).toHaveBeenCalledWith({path:'usd/wallets/13/status',method:'patch',body:{action:'reject',items:[{field:'govIdImageBack',note:'You uploaded the front twice.'},{field:'address'}]}},expect.any(Object));
+  });
+  it('drops an item when it is unticked', () => {
+    render(<UsdWalletActions walletId="13" status="pending_kyc" inline />);
+    fireEvent.click(screen.getByRole('button',{name:'Decline KYC'}));
+    fireEvent.click(screen.getByRole('checkbox',{name:'Proof of address'}));
+    fireEvent.click(screen.getByRole('checkbox',{name:'Proof of address'}));
+    expect(screen.queryByRole('textbox',{name:'Note for Proof of address'})).toBeNull();
+    expect((screen.getByRole('button',{name:'Continue'}) as HTMLButtonElement).disabled).toBe(true);
+  });
   it('opens a three-dot dropdown with review and freeze options', async () => {
     const review=vi.fn();
     render(<UsdWalletActions walletId="13" status="active" onReview={review} />);
