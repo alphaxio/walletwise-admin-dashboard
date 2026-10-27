@@ -15,6 +15,7 @@ import EventAttendeesTable from "../EventAttendeesTable/EventAttendeesTable";
 import ConfirmAction from "@/components/molecules/ConfirmAction/ConfirmAction";
 import { eventBreadcrumb } from "../../constants/events";
 import PartnerEventTicketsTable from "../PartnerEventTicketsTable/PartnerEventTicketsTable";
+import InvalidateTokenForm from "../InvalidateTokenForm/InvalidateTokenForm";
 import InvalidateTicketForm from "../InvalidateTicketForm/InvalidateTicketForm";
 
 const EventInfoWrapper = ({ eventId }: { eventId: string }) => {
@@ -59,6 +60,11 @@ const EventInfoWrapper = ({ eventId }: { eventId: string }) => {
       label: "Invalidate Ticket",
       value: "invalidate-ticket",
       content: <InvalidateTicketForm eventId={eventId} />,
+    },
+    {
+      label: "Invalidate Token",
+      value: "invalidate-token",
+      content: <InvalidateTokenForm eventId={eventId} />,
     },
   ];
 

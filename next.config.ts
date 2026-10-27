@@ -27,7 +27,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   // output: "export",
   images: {
-    domains: ["res.cloudinary.com"],
+    domains: [
+      "res.cloudinary.com",
+      "walletwise-uploads.s3.eu-west-2.amazonaws.com",
+    ],
   },
 };
 
