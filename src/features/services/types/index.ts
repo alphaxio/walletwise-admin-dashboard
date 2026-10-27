@@ -137,6 +137,7 @@ export interface EventsType {
   user_id?: string | null;
   total_attendees: string;
   total_tickets_sold: string;
+  total_tokens_sold: string;
   ticket_types: TicketTypes;
   created_at: string;
   updated_at?: string;
