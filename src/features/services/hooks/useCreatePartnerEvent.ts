@@ -14,6 +14,7 @@ import {
   PartnerEventCustomField,
   PartnerEventPayload,
   PartnerEventTicketType,
+  PartnerEventTokenPack,
 } from "../types/partnerEvent";
 
 export interface NamedImage {
@@ -35,6 +36,7 @@ const initialPayload: PartnerEventPayload = {
   service_fee: 0,
   refund_policy: "",
   ticket_types: [{ type: "Regular", price: 0, capacity: 0 }],
+  token_packs: [],
 };
 
 type ExistingNamedImage = {
@@ -91,6 +93,11 @@ export const useCreatePartnerEvent = (eventId?: string) => {
       ? (existing.category as PartnerEventCategory)
       : "Others";
 
+    const formSettings = existing.form_settings as
+      | { custom_fields?: PartnerEventCustomField[]; tokenPacks?: PartnerEventTokenPack[] }
+      | undefined;
+    const tokenPacks = formSettings?.tokenPacks ?? existing.token_packs;
+
     setForm({
       partner_id: String(existing.partner_id || ""),
       title: String(existing.title || ""),
@@ -102,6 +109,13 @@ export const useCreatePartnerEvent = (eventId?: string) => {
       address: String(existing.address || ""),
       service_fee: Number(existing.service_fee || 0),
       refund_policy: String(existing.refund_policy || ""),
+      token_packs: Array.isArray(tokenPacks)
+        ? tokenPacks.map((pack: PartnerEventTokenPack) => ({
+            name: pack.name,
+            tokens: Number(pack.tokens),
+            price: Number(pack.price),
+          }))
+        : [],
       ticket_types: mappedTickets.length
         ? mappedTickets
         : [{ type: "Regular", price: 0, capacity: 0 }],
@@ -124,9 +138,6 @@ export const useCreatePartnerEvent = (eventId?: string) => {
       preview: item.image_url || item.image || null,
     })));
 
-    const formSettings = existing.form_settings as
-      | { custom_fields?: PartnerEventCustomField[] }
-      | undefined;
     setCustomFields(formSettings?.custom_fields || []);
     hydratedEventId.current = eventId;
   }, [eventId, eventQuery.data]);
@@ -178,6 +189,31 @@ export const useCreatePartnerEvent = (eventId?: string) => {
         ...current,
         ticket_types: current.ticket_types.filter((_, i) => i !== index),
       })),
+    [],
+  );
+
+  const changeTokenPack = useCallback(
+    (index: number, field: keyof PartnerEventTokenPack, value: string | number) =>
+      setForm((current) => ({
+        ...current,
+        token_packs: (current.token_packs || []).map((pack, i) =>
+          i === index ? { ...pack, [field]: value } : pack,
+        ),
+      })),
+    [],
+  );
+  const addTokenPack = useCallback(
+    () => setForm((current) => ({
+      ...current,
+      token_packs: [...(current.token_packs || []), { name: "", tokens: 0, price: 0 }],
+    })),
+    [],
+  );
+  const removeTokenPack = useCallback(
+    (index: number) => setForm((current) => ({
+      ...current,
+      token_packs: (current.token_packs || []).filter((_, i) => i !== index),
+    })),
     [],
   );
 
@@ -314,6 +350,14 @@ export const useCreatePartnerEvent = (eventId?: string) => {
         return;
       }
 
+      if (form.token_packs?.some((pack) =>
+        !pack.name.trim() || !Number.isSafeInteger(pack.tokens) || pack.tokens <= 0 ||
+        !Number.isFinite(pack.price) || pack.price < 0
+      )) {
+        toast.error("Each token pack needs a name, a positive whole token count, and a valid price.");
+        return;
+      }
+
       const isPageant = form.category === "Beauty Pageant";
       mutate({
         payload: {
@@ -368,6 +412,9 @@ export const useCreatePartnerEvent = (eventId?: string) => {
     updateNamedImage,
     addNamedImage,
     removeNamedImage,
+    changeTokenPack,
+    addTokenPack,
+    removeTokenPack,
     changeTicket,
     addTicket,
     removeTicket,

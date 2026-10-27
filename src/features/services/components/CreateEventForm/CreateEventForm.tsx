@@ -9,6 +9,7 @@ import Select from "@/components/atoms/Select/Select";
 import Textarea from "@/components/atoms/TextArea/Textarea";
 import CurrencyInput from "@/components/atoms/CurrencyInput/CurrencyInput";
 import PartnerSelectField from "../PartnerSelectField/PartnerSelectField";
+import PartnerTokenPackFields from "../PartnerTokenPackFields/PartnerTokenPackFields";
 import PartnerTicketFields from "../PartnerTicketFields/PartnerTicketFields";
 import EventFileField from "../EventFileField/EventFileField";
 import PartnerEventImageGuide from "../PartnerEventImageGuide/PartnerEventImageGuide";
@@ -183,6 +184,13 @@ const CreateEventForm = ({ eventId }: { eventId?: string }) => {
           onChange={event.changeTicket}
           onAdd={event.addTicket}
           onRemove={event.removeTicket}
+        />
+
+        <PartnerTokenPackFields
+          packs={form.token_packs || []}
+          onChange={event.changeTokenPack}
+          onAdd={event.addTokenPack}
+          onRemove={event.removeTokenPack}
         />
 
         <div className="space-y-2">

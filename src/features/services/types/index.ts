@@ -148,6 +148,7 @@ export interface EventsType {
   created_by_type?: string;
   status?: string;
   form_settings?: {
+    tokenPacks?: import("./partnerEvent").PartnerEventTokenPack[];
     custom_fields?: unknown[];
     [field: string]:
       | { input_type: string; is_required: boolean }

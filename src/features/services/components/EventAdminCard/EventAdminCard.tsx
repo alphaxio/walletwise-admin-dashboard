@@ -12,6 +12,7 @@ import {
 } from "@/lib/helpers/dateFormats";
 import { totalTickets } from "../../helpers/totalTickets";
 import { numberWithCommas } from "@/lib/helpers";
+import { formatNaira } from "@/lib/helpers/currency";
 
 import {
   Calendar,
@@ -54,6 +55,7 @@ const EventAdminCard = ({
   const tickets = Object.entries(data?.ticket_types ?? {})?.filter(
     ([, v]) => v !== undefined,
   ) as [string, TicketType][];
+  const tokenPacks = data?.form_settings?.tokenPacks ?? [];
   const formFields = Object.entries(data?.form_settings ?? {}).filter(
     ([field, settings]) =>
       field !== "custom_fields" &&
@@ -254,6 +256,34 @@ const EventAdminCard = ({
             )}
           </div>
         </div>
+
+        {tokenPacks.length > 0 && (
+          <div>
+            <p className="mb-2 text-[10px] uppercase tracking-widest text-gray-400 dark:text-gray-500">
+              Token Packs
+            </p>
+            <div className="space-y-2">
+              {tokenPacks.map((pack, index) => (
+                <div
+                  key={`${pack.name}-${index}`}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 dark:border-white/10 dark:bg-white/5"
+                >
+                  <span className="text-[13px] font-medium text-gray-700 dark:text-gray-200">
+                    {pack.name}
+                  </span>
+                  <div className="flex items-center gap-5">
+                    <span className="text-[12px] text-gray-400 dark:text-gray-500">
+                      {numberWithCommas(pack.tokens)} tokens
+                    </span>
+                    <span className="min-w-[60px] text-right text-[13px] font-semibold text-[#5c24cc] dark:text-purple-400">
+                      {formatNaira(pack.price)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="h-px bg-gray-100 dark:bg-white/10" />
       </div>

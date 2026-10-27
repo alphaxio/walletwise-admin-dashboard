@@ -181,6 +181,20 @@ export const validatePartnerTicket = async ({
   return data;
 };
 
+export const invalidateEventToken = async ({
+  eventId,
+  tokenCode,
+}: {
+  eventId: string;
+  tokenCode: string;
+}) => {
+  const { data } = await axiosInstance.post(
+    `/events/${encodeURIComponent(eventId)}/tokens/invalidate`,
+    { tokenCode },
+  );
+  return data;
+};
+
 export function buildEventFormData(payload: CreateEventPayload): FormData {
   const form = new FormData();
 
@@ -253,6 +267,9 @@ export const buildPartnerEventFormData = (
   form.append("service_fee", String(payload.service_fee));
   form.append("refund_policy", payload.refund_policy);
   form.append("ticket_types", JSON.stringify(payload.ticket_types));
+  if (payload.token_packs !== undefined) {
+    form.append("token_packs", JSON.stringify(payload.token_packs));
+  }
   if (files.thumbnail) {
     form.append("thumbnail", files.thumbnail, files.thumbnail.name);
   }
