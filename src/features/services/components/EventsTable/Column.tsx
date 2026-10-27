@@ -59,9 +59,7 @@ export const Column = [
     enableHiding: false,
   },
   columnHelper.accessor("title", {
-    header: ({ column }) => (
-      <SortableHeader label="Event" column={column} />
-    ),
+    header: ({ column }) => <SortableHeader label="Event" column={column} />,
     cell: ({ row }) => (
       <div className="min-w-48">
         <Link
@@ -70,24 +68,23 @@ export const Column = [
         >
           {row.original.title}
         </Link>
-        <Link href={`/services/events/info/${row.original.event_id}`} className="mt-1 block max-w-64 truncate text-xs text-gray-500 hover:underline">
+        <Link
+          href={`/services/events/info/${row.original.event_id}`}
+          className="mt-1 block max-w-64 truncate text-xs text-gray-500 hover:underline"
+        >
           {row.original.event_id}
         </Link>
       </div>
     ),
   }),
   columnHelper.accessor("category", {
-    header: ({ column }) => (
-      <SortableHeader label="Category" column={column} />
-    ),
+    header: ({ column }) => <SortableHeader label="Category" column={column} />,
     cell: ({ getValue }) => (
       <span className="whitespace-nowrap capitalize">{getValue() || "—"}</span>
     ),
   }),
   columnHelper.accessor("date", {
-    header: ({ column }) => (
-      <SortableHeader label="Schedule" column={column} />
-    ),
+    header: ({ column }) => <SortableHeader label="Schedule" column={column} />,
     cell: ({ row }) => (
       <div className="whitespace-nowrap">
         <div>{convertDateFormat(row.original.date)}</div>
@@ -98,9 +95,7 @@ export const Column = [
     ),
   }),
   columnHelper.accessor("address", {
-    header: ({ column }) => (
-      <SortableHeader label="Location" column={column} />
-    ),
+    header: ({ column }) => <SortableHeader label="Location" column={column} />,
     cell: ({ getValue }) => (
       <div className="max-w-64 truncate" title={getValue() || undefined}>
         {getValue() || "—"}
@@ -116,9 +111,7 @@ export const Column = [
     ),
   }),
   columnHelper.accessor("status", {
-    header: ({ column }) => (
-      <SortableHeader label="Status" column={column} />
-    ),
+    header: ({ column }) => <SortableHeader label="Status" column={column} />,
     cell: ({ getValue }) =>
       getValue() ? <StatusBubble status={getValue()!} /> : "—",
   }),
@@ -134,6 +127,12 @@ export const Column = [
     ),
     cell: ({ getValue }) => numberWithCommas(Number(getValue() || 0)),
   }),
+  columnHelper.accessor("total_tokens_sold", {
+    header: ({ column }) => (
+      <SortableHeader label="Tokens Sold" column={column} />
+    ),
+    cell: ({ getValue }) => numberWithCommas(Number(getValue() || 0)),
+  }),
   columnHelper.accessor("service_fee", {
     header: ({ column }) => (
       <SortableHeader label="Service Fee" column={column} />
@@ -141,9 +140,7 @@ export const Column = [
     cell: ({ getValue }) => `${Number(getValue() || 0)}%`,
   }),
   columnHelper.accessor("created_at", {
-    header: ({ column }) => (
-      <SortableHeader label="Created" column={column} />
-    ),
+    header: ({ column }) => <SortableHeader label="Created" column={column} />,
     cell: ({ getValue }) => (
       <span className="whitespace-nowrap">
         {getValue() ? convertDateFormat(getValue()) : "—"}
