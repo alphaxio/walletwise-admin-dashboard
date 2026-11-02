@@ -31,7 +31,7 @@ const PartnerTokenPackFields = memo(function PartnerTokenPackFields({ packs, onC
       <div className="space-y-3">
         {packs.map((pack, index) => confirmed.includes(index) ? (
           <div key={index} className="mb-2 flex items-center justify-between rounded border bg-gray-50 px-3 py-2">
-            <div className="flex items-center gap-4"><span className="text-sm font-medium capitalize">{pack.name}</span><span className="text-sm text-gray-500">{formatNaira(pack.price)}</span><span className="text-sm text-gray-500">{pack.tokens.toLocaleString()} tokens</span></div>
+            <div className="flex items-center gap-4"><span className="text-sm font-medium capitalize">{pack.name}</span><span className="text-sm text-gray-500">{formatNaira(pack.price)}</span><span className="text-sm text-gray-500">{pack.tokens.toLocaleString()} tokens per pack</span></div>
             <div className="flex items-center gap-2"><button type="button" onClick={() => setConfirmed((current) => current.filter((item) => item !== index))} className="text-xs text-blue-500">Edit</button><button type="button" onClick={() => removePack(index)} aria-label="Remove token pack">×</button></div>
           </div>
         ) : (
@@ -39,7 +39,7 @@ const PartnerTokenPackFields = memo(function PartnerTokenPackFields({ packs, onC
             <div className="w-full space-y-2"><Label title="Name" /><Input type="text" name="name" placeholder="Pack name (e.g. Starter Pack)" value={pack.name} onChange={(e) => onChange(index, "name", e.target.value)} /></div>
             <div className="flex items-center gap-2">
               <div className="w-full flex-1 space-y-2"><Label title="Price (₦)" /><CurrencyInput name="price" value={pack.price} onValueChange={(value) => onChange(index, "price", value)} /></div>
-              <div className="w-full flex-1 space-y-2"><Label title="Tokens" /><Input type="text" name="tokens" placeholder="0" value={pack.tokens || ""} onChange={(e) => onChange(index, "tokens", Number(e.target.value))} /></div>
+              <div className="w-full flex-1 space-y-2"><Label title="Tokens in each pack" /><Input type="text" name="tokens" placeholder="e.g. 10" value={pack.tokens || ""} onChange={(e) => onChange(index, "tokens", Number(e.target.value))} /></div>
               <button type="button" onClick={() => pack.name.trim() && Number.isSafeInteger(pack.tokens) && pack.tokens > 0 && Number.isFinite(pack.price) && pack.price >= 0 && setConfirmed((current) => [...current, index])} className="mt-6 flex h-6 items-center justify-center rounded bg-[#6637CF] px-3 text-sm text-white">Add</button>
               <button type="button" onClick={() => removePack(index)} className="mt-6" aria-label="Remove token pack">×</button>
             </div>

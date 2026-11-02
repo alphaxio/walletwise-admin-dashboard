@@ -181,6 +181,13 @@ export interface EventsAttendeesType {
   user_id: string;
 }
 
+export interface PartnerEventTokenPurchase {
+  packName?: string;
+  quantity?: number;
+  totalTokens?: number;
+  totalAmount?: string;
+}
+
 export interface PartnerEventTicket {
   id: number;
   ticket_id: string;
@@ -192,10 +199,12 @@ export interface PartnerEventTicket {
   attended_count: number;
   attended_at: string | null;
   confirmed_at: string | null;
+  // Ticket fields are missing on a tokens-only order.
   tickets_purchased: {
-    price: string;
-    quantity: number;
-    ticketType: string;
+    price?: string;
+    quantity?: number;
+    ticketType?: string;
+    tokens?: PartnerEventTokenPurchase;
   };
   custom_answers: {
     email?: string;
