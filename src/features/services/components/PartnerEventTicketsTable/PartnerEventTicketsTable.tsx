@@ -142,7 +142,7 @@ const PartnerEventTicketsTable = ({ eventId }: { eventId: string }) => {
               <TableHead>Contact</TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Qty</TableHead>
-              <TableHead>Price</TableHead>
+              <TableHead>Amount</TableHead>
               <TableHead>Payment</TableHead>
               <TableHead>Attendance</TableHead>
               <TableHead>Confirmed</TableHead>
@@ -160,6 +160,13 @@ const PartnerEventTicketsTable = ({ eventId }: { eventId: string }) => {
                   ticket.phone_number ||
                   ticket.custom_answers?.phoneNumber ||
                   "—";
+                const purchase = ticket.tickets_purchased ?? {};
+                const tokens = purchase.tokens;
+                const hasTicket = !!purchase.ticketType;
+                const ticketAmount =
+                  (Number(purchase.price) || 0) * (Number(purchase.quantity) || 1);
+                const amountPaid =
+                  (hasTicket ? ticketAmount : 0) + (Number(tokens?.totalAmount) || 0);
                 const isValidated =
                   (ticket.attendance_status ?? "pending").toLowerCase() !== "pending" ||
                   ticket.attended_count > 0;
@@ -175,12 +182,16 @@ const PartnerEventTicketsTable = ({ eventId }: { eventId: string }) => {
                       <div className="text-xs text-gray-500">{phone}</div>
                     </TableCell>
                     <TableCell>
-                      {ticket.tickets_purchased.ticketType}
+                      <div>{hasTicket ? purchase.ticketType : "Tokens only"}</div>
+                      {tokens && (
+                        <div className="text-xs text-gray-500">
+                          {tokens.quantity ?? 1} × {tokens.packName || "Token Pack"}
+                          {tokens.totalTokens ? ` (${tokens.totalTokens} tokens)` : ""}
+                        </div>
+                      )}
                     </TableCell>
-                    <TableCell>{ticket.tickets_purchased.quantity}</TableCell>
-                    <TableCell>
-                      {formatPrice(ticket.tickets_purchased.price)}
-                    </TableCell>
+                    <TableCell>{hasTicket ? purchase.quantity ?? 1 : "—"}</TableCell>
+                    <TableCell>{formatPrice(String(amountPaid))}</TableCell>
                     <TableCell>
                       <StatusBubble status={ticket.payment_status} />
                     </TableCell>
