@@ -24,6 +24,7 @@ import {
   GiftIcon,
   Save,
   Handshake,
+  WalletCards,
 } from "lucide-react";
 
 export const links = [
@@ -135,6 +136,12 @@ export const links = [
         name: "manage kyc",
         link: "/manage-kyc",
         icon: <BookmarkCheck className="w-4 h-4" />,
+      },
+      {
+        name: "wallet adjustments",
+        link: "/wallet-adjustments",
+        icon: <WalletCards className="w-4 h-4" />,
+        permissions: ["wallet.adjust"],
       },
       {
         name: "roles",
