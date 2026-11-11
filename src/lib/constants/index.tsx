@@ -25,6 +25,7 @@ import {
   Save,
   Handshake,
   WalletCards,
+  Landmark,
 } from "lucide-react";
 
 export const links = [
@@ -142,6 +143,12 @@ export const links = [
         link: "/wallet-adjustments",
         icon: <WalletCards className="w-4 h-4" />,
         permissions: ["wallet.adjust"],
+      },
+      {
+        name: "settlement sweep",
+        link: "/settlement-sweep",
+        icon: <Landmark className="w-4 h-4" />,
+        permissions: ["wallet.sweep"],
       },
       {
         name: "roles",
