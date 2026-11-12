@@ -4,7 +4,8 @@ import type { SweepRecord, SweepRunInput, SweepRunResponse, SweepScanPage } from
 const BASE = "/settlement-sweeps";
 
 export const scanSweepAccounts = async (offset: number, limit: number): Promise<SweepScanPage> => {
-  const { data } = await axiosInstance.get(`${BASE}/accounts`, { params: { offset, limit } });
+  // A page reads a few SafeHaven balances; never wait on a stuck request forever.
+  const { data } = await axiosInstance.get(`${BASE}/accounts`, { params: { offset, limit }, timeout: 60000 });
   return data?.data;
 };
 

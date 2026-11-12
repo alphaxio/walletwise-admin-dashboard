@@ -1,7 +1,9 @@
 import type { SweepAccountRow } from "../types/settlementSweep";
 import { round2 } from "./walletAdjustments";
 
-export const SCAN_PAGE_SIZE = 25;
+export const SCAN_PAGE_SIZE = 10;
+/** Waits before retrying a failed scan page: 2s, then 5s, then 10s. */
+export const SCAN_RETRY_DELAYS_MS = [2000, 5000, 10000];
 export const SWEEP_CHUNK_SIZE = 5;
 
 export interface SweepTotals {

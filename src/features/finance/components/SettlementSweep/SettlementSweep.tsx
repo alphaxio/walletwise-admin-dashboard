@@ -71,7 +71,8 @@ export default function SettlementSweep() {
     [scan.rows, selected, min, sweep.results]
   );
   const chosenTotal = round2(chosen.reduce((sum, r) => sum + (r.gap ?? 0), 0));
-  const scanDone = !scan.scanning && scan.total !== null;
+  // Sweeping is allowed only after every account has been read.
+  const scanDone = !scan.scanning && scan.total !== null && scan.stoppedAt === null && scan.rows.length >= scan.total;
 
   const startScan = async () => {
     sweep.clear();
@@ -111,11 +112,18 @@ export default function SettlementSweep() {
           {scan.scanning ? (
             <Button variant="outline" onClick={scan.stop}>Stop</Button>
           ) : (
-            <Button onClick={startScan} disabled={sweep.running}>{scan.total === null ? "Scan all accounts" : "Scan again"}</Button>
+            <>
+              {scan.stoppedAt !== null && (
+                <Button onClick={scan.resume} disabled={sweep.running}>Continue from {scan.stoppedAt}</Button>
+              )}
+              <Button variant={scan.stoppedAt !== null ? "outline" : "default"} onClick={startScan} disabled={sweep.running}>
+                {scan.total === null ? "Scan all accounts" : "Scan again"}
+              </Button>
+            </>
           )}
           {scan.total !== null && (
             <span className="text-sm text-muted-foreground">
-              {scan.scanning ? "Scanning… " : ""}
+              {scan.scanning ? (scan.retrying ? "Retrying… " : "Scanning… ") : scan.stoppedAt !== null ? "Paused. " : ""}
               {scan.rows.length} of {scan.total} accounts read
             </span>
           )}

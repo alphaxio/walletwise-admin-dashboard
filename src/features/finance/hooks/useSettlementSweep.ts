@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getSettlementSweeps, runSettlementSweep, scanSweepAccounts } from "../api/settlementSweep";
-import { chunk, SCAN_PAGE_SIZE, SWEEP_CHUNK_SIZE } from "../helpers/settlementSweep";
+import { chunk, SCAN_PAGE_SIZE, SCAN_RETRY_DELAYS_MS, SWEEP_CHUNK_SIZE } from "../helpers/settlementSweep";
 import type { SweepAccountRow, SweepResult } from "../types/settlementSweep";
 
 const apiMessage = (error: unknown) =>
@@ -13,43 +13,80 @@ const apiMessage = (error: unknown) =>
   (error as Error)?.message ||
   "Request failed";
 
-/** Reads every personal account page by page. Read-only. */
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Reads every personal account page by page. Read-only.
+ * A failed page is retried a few times; if it still fails the scan pauses and can be
+ * resumed from that page without losing what was already read.
+ */
 export const useSweepScan = () => {
   const [rows, setRows] = useState<SweepAccountRow[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [settlementAccount, setSettlementAccount] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+  const [stoppedAt, setStoppedAt] = useState<number | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const cancelled = useRef(false);
+  const rowsRef = useRef<SweepAccountRow[]>([]);
 
-  const start = useCallback(async () => {
+  const fetchPage = async (offset: number) => {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await scanSweepAccounts(offset, SCAN_PAGE_SIZE);
+      } catch (error) {
+        if (attempt >= SCAN_RETRY_DELAYS_MS.length || cancelled.current) throw error;
+        setRetrying(true);
+        await sleep(SCAN_RETRY_DELAYS_MS[attempt]);
+      } finally {
+        setRetrying(false);
+      }
+    }
+  };
+
+  const runFrom = useCallback(async (startOffset: number) => {
     cancelled.current = false;
     setScanning(true);
-    setRows([]);
-    setTotal(null);
+    setStoppedAt(null);
+    let offset = startOffset;
     try {
-      let offset = 0;
-      let all: SweepAccountRow[] = [];
       for (;;) {
-        const page = await scanSweepAccounts(offset, SCAN_PAGE_SIZE);
-        all = [...all, ...page.items];
-        setRows(all);
+        const page = await fetchPage(offset);
+        rowsRef.current = [...rowsRef.current, ...page.items];
+        setRows(rowsRef.current);
         setTotal(page.total);
         setSettlementAccount(page.settlementAccount);
         offset += page.items.length;
-        if (cancelled.current || page.items.length === 0 || offset >= page.total) break;
+        if (page.items.length === 0 || offset >= page.total) break;
+        if (cancelled.current) {
+          setStoppedAt(offset);
+          break;
+        }
       }
     } catch (error) {
-      toast.error(`Scan stopped: ${apiMessage(error)}`);
+      setStoppedAt(offset);
+      toast.error(`Scan paused at ${offset} accounts: ${apiMessage(error)}. Press Continue to carry on.`);
     } finally {
       setScanning(false);
     }
   }, []);
 
+  const start = useCallback(async () => {
+    rowsRef.current = [];
+    setRows([]);
+    setTotal(null);
+    await runFrom(0);
+  }, [runFrom]);
+
+  const resume = useCallback(async () => {
+    if (stoppedAt !== null) await runFrom(stoppedAt);
+  }, [runFrom, stoppedAt]);
+
   const stop = useCallback(() => {
     cancelled.current = true;
   }, []);
 
-  return { rows, total, settlementAccount, scanning, start, stop };
+  return { rows, total, settlementAccount, scanning, retrying, stoppedAt, start, resume, stop };
 };
 
 /** Sends the approved accounts in small batches. Moves real money. */
