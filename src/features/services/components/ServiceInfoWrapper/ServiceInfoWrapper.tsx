@@ -11,13 +11,20 @@ import ServiceDetailsCard from "@/components/molecules/ServiceDetailsCard/Servic
 import UserInformation from "../UserInformation/UserInformation";
 import AdminInfoLoader from "@/components/atoms/skeleton/AdminInfoLoader";
 
-const ServiceInfoWrapper = ({ serviceId }: { serviceId: string }) => {
+const ServiceInfoWrapper = ({
+  serviceId,
+  parentBreadcrumb,
+}: {
+  serviceId: string;
+  /** Where the breadcrumb goes back to; defaults to the category's management page. */
+  parentBreadcrumb?: { label: string; href: string };
+}) => {
   const { isLoading, data } = useGetServiceInfo(serviceId);
 
   const category = data?.category || "";
 
   const userBreadcrumb = [
-    { label: `${category} Management`, href: `/services/${category}` },
+    parentBreadcrumb ?? { label: `${category} Management`, href: `/services/${category}` },
     { label: "Transaction Info" },
   ];
 
