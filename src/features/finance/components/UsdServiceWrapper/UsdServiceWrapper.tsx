@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Button from "@/components/atoms/Button/Button";
 import ServiceLayout from "@/components/templates/ServiceLayout/ServiceLayout";
 import FinancialList from "../FinancialList/FinancialList";
 import RateSettings from "../RateSettings/RateSettings";
@@ -32,9 +32,9 @@ export default function UsdServiceWrapper({
           value: "kyc",
           label: "USD KYC",
           content: (
-            <Link className="underline" href="/manage-usd-kyc">
+            <Button href="/manage-usd-kyc" width="w-fit">
               Open USD onboarding review
-            </Link>
+            </Button>
           ),
         },
       ]}

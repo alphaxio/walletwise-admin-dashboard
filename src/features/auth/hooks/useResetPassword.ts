@@ -1,7 +1,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useMutation } from "@tanstack/react-query";
 
 import { resetPassword } from "../api";

@@ -3,7 +3,7 @@ import { useGetGiftcardProductInfo } from "./useGetGiftcardProductInfo";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiErrorResponse } from "@/lib/types";
 import { promiseErrorFunction } from "@/lib/helpers/promiseError";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { editGifcardProductInfo } from "../api/giftcard";
 
 export const useEditGiftcardProducts = (id: number) => {

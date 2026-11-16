@@ -77,7 +77,6 @@ export const metrics: Partial<Record<Resource, Field[]>> = {
     { key: "active", label: "Active", filterStatus: "active" },
     { key: "rejected", label: "Rejected", filterStatus: "rejected" },
     { key: "frozen", label: "Frozen", filterStatus: "frozen" },
-    { key: "totalBalance", label: "Total USD balance", currency: "USD" },
   ],
   "usd/accounts": [
     { key: "totalBalance", label: "Total ledger balance", currency: "USD" },

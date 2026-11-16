@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 // Event handlers and asynchronous callbacks are outside React error boundaries.
 export default function BrowserErrorReporter() {

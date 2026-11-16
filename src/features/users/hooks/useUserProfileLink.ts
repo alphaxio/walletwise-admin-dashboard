@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toast } from "@/lib/toast";
 import { resolveUserIdByEmail } from '../api/resolveUser';
 export function useUserProfileLink(email?: string) {
   const router = useRouter();

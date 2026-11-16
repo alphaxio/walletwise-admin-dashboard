@@ -1,4 +1,4 @@
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { ApiErrorResponse } from "../types";
 
 export const promiseErrorFunction = (error: ApiErrorResponse) => {

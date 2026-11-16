@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { promiseErrorFunction } from "@/lib/helpers/promiseError";
