@@ -1,103 +1,64 @@
 "use client";
 
-import * as React from "react";
-import { format } from "date-fns";
-import { CalendarIcon, DownloadIcon, FileTextIcon } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { useGetUserAccountStatement } from "@/features/users/hooks/useGetUserAccountStatement";
+import { CalendarDays, CheckCircle2, Download, FileText, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useGetUserAccountStatement } from '@/features/users/hooks/useGetUserAccountStatement';
 
 interface StatementOfAccountProps {
   userId: string;
   userName?: string;
 }
 
-export function StatementOfAccount({
-  userId,
-  userName,
-}: StatementOfAccountProps) {
-  const { dateRange, setDateRange, downloadStatement, isPending, isSuccess } =
-    useGetUserAccountStatement();
+export function StatementOfAccount({ userId, userName }: StatementOfAccountProps) {
+  const statement = useGetUserAccountStatement(userId);
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4 w-fit mt-10 dark:bg-gray-800">
-      <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-          <FileTextIcon className="h-4 w-4 text-primary" />
+    <section aria-label="Download account statement" className="min-w-0 overflow-hidden rounded-2xl border bg-card text-card-foreground shadow-sm">
+      <div className="flex flex-col gap-4 border-b bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-200">
+            <FileText className="size-5" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-base font-semibold">Account statement</h3>
+            <p className="mt-1 text-sm text-muted-foreground">Download {userName ? `${userName}’s` : 'this user’s'} transaction statement for a selected period.</p>
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-foreground leading-none">
-            Statement of Account
-          </p>
-          {userName && (
-            <p className="text-xs text-muted-foreground mt-0.5">{userName}</p>
-          )}
+        <span className="w-fit shrink-0 rounded-md border bg-background px-2.5 py-1 text-xs font-medium text-muted-foreground">PDF document</span>
+      </div>
+      <div className="space-y-4 p-4 sm:p-5">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-end">
+          <div className="min-w-0 flex-1 space-y-2">
+            <p id="statement-period-label" className="text-sm font-medium">Statement period</p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" aria-labelledby="statement-period-label statement-period-value" disabled={statement.isPending} className="h-auto min-h-11 w-full justify-start gap-3 whitespace-normal py-3 text-left font-normal">
+                  <CalendarDays className="size-4 shrink-0 text-muted-foreground" />
+                  <span id="statement-period-value">{statement.rangeLabel}</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="max-h-[min(32rem,80dvh)] w-auto max-w-[calc(100vw-2rem)] overflow-auto p-0" align="start">
+                <Calendar mode="range" defaultMonth={statement.dateRange?.from} selected={statement.dateRange} onSelect={statement.changeDateRange} numberOfMonths={1} disabled={{ after: new Date() }} />
+              </PopoverContent>
+            </Popover>
+          </div>
+          <Button onClick={statement.handleDownload} disabled={statement.isPending || !statement.hasCompleteRange} className="min-h-11 w-full gap-2 xl:w-auto xl:px-6">
+            {statement.isPending ? <Loader2 className="size-4 animate-spin" /> : <Download className="size-4" />}
+            {statement.isPending ? 'Generating statement…' : 'Download statement'}
+          </Button>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-1 text-xs text-muted-foreground">Quick select</span>
+          <Button variant="outline" size="sm" disabled={statement.isPending} onClick={statement.selectWeek}>Last 7 days</Button>
+          <Button variant="outline" size="sm" disabled={statement.isPending} onClick={statement.selectMonth}>Last 30 days</Button>
+          <Button variant="outline" size="sm" disabled={statement.isPending} onClick={statement.selectCurrentMonth}>This month</Button>
+        </div>
+        <div role="status" className="text-xs text-muted-foreground">
+          {statement.isSuccess ? <p className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400"><CheckCircle2 className="size-4" />Your statement has been downloaded.</p> : statement.isPending ? 'Preparing your PDF. Your download will start automatically.' : 'Choose both dates to download a PDF. Future dates are unavailable.'}
         </div>
       </div>
-
-      <div className="space-y-1.5">
-        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Select Date Range
-        </label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-full justify-start text-left font-normal",
-                !dateRange && "text-muted-foreground",
-              )}
-            >
-              <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  <span>
-                    {format(dateRange.from, "MMM d, yyyy")} –{" "}
-                    {format(dateRange.to, "MMM d, yyyy")}
-                  </span>
-                ) : (
-                  format(dateRange.from, "MMM d, yyyy")
-                )
-              ) : (
-                <span>Pick a date range</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              initialFocus
-              mode="range"
-              defaultMonth={dateRange?.from}
-              selected={dateRange}
-              onSelect={setDateRange}
-              numberOfMonths={2}
-              disabled={{ after: new Date() }}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-
-      {isSuccess && (
-        <p className="text-xs text-purple-600 dark:text-purple-400">
-          Statement downloaded successfully.
-        </p>
-      )}
-
-      <Button
-        onClick={() => downloadStatement(userId)}
-        disabled={isPending}
-        className="w-full gap-2"
-      >
-        <DownloadIcon className="h-4 w-4" />
-        {isPending ? "Generating..." : "Download Statement"}
-      </Button>
-    </div>
+    </section>
   );
 }

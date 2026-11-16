@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import { DollarSign } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
@@ -41,7 +40,6 @@ const UserCardTransactions = ({
   isLoading: boolean;
   setCurrentPage: (page: number) => void;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const typedColumns = Column as ColumnDef<unknown>[];
 
@@ -50,13 +48,11 @@ const UserCardTransactions = ({
       <SectionHeader
         icon={DollarSign}
         title="Card transactions"
-        subtitle={`${cardTransactions?.length} referral${
+        subtitle={`${cardTransactions?.length} transaction${
           cardTransactions?.length !== 1 ? "s" : ""
         }`}
-        isExpanded={isExpanded}
-        onToggle={() => setIsExpanded(!isExpanded)}
       />
-      {isExpanded && (
+      {(
         <div>
           {isLoading ? (
             <TableLoader />

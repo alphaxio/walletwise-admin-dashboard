@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import { User } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
@@ -41,7 +40,6 @@ const UserReferralSection = ({
   isLoading: boolean;
   setCurrentPage: (page: number) => void;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const typedColumns = Column as ColumnDef<unknown>[];
 
@@ -53,10 +51,8 @@ const UserReferralSection = ({
         subtitle={`${userReferrals?.length} referral${
           userReferrals?.length !== 1 ? "s" : ""
         }`}
-        isExpanded={isExpanded}
-        onToggle={() => setIsExpanded(!isExpanded)}
       />
-      {isExpanded && (
+      {(
         <div>
           {isLoading ? (
             <TableLoader />

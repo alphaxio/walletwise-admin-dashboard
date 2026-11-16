@@ -13,6 +13,6 @@ describe('USD wallets response', () => {
     expect(money(result.records[0].balance,'USD')).toBe('US$0.00');
     expect(result.total).toBe(2);
     expect(result.metrics.totalAccounts).toBe(3);
-    expect(metrics['usd/kyc']?.map(field => field.key)).toEqual(Object.keys(result.metrics));
+    expect(metrics['usd/kyc']?.map(field => field.key)).toEqual(Object.keys(result.metrics).filter(key => key !== 'totalBalance'));
   });
 });

@@ -4,8 +4,8 @@ interface SectionHeaderProps {
   icon: React.ElementType;
   title: string;
   subtitle: string;
-  isExpanded: boolean;
-  onToggle: () => void;
+  isExpanded?: boolean;
+  onToggle?: () => void;
 }
 
 const SectionHeader = ({

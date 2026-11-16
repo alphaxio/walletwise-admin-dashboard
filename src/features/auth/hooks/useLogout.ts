@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { logout } from "../api";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { ApiErrorResponse } from "@/lib/types";
 import { clearAuthClear } from "@/lib/helpers/cookie";
 import { clearUser } from "@/store/features/auth/authSlice";

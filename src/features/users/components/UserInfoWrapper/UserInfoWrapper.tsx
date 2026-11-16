@@ -1,187 +1,84 @@
 "use client";
 
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ErrorFallback from "@/components/ErrorFallback";
-
 import PageTitle from "@/components/atoms/PageTitle/PageTitle";
+import UserInfoLoader from "@/components/atoms/skeleton/UserInfoLoader";
+import RestrictionEmptyState from "@/components/atoms/RestrictionEmptyState/RestrictionEmptyState";
 import AppBreadcrumb from "@/components/molecules/AppBreadcrumb/AppBreadcrumb";
+import DynamicTabs from "@/components/molecules/DynamicTabs/DynamicTabs";
+import { StatementOfAccount } from "@/components/molecules/StatementOfAccount/StatementOfAccount";
+import { canViewTransactions } from "@/lib/helpers/canViewTransactions";
+import { userBreadcrumb } from "../../constants";
+import { useGetUserInfo } from "../../hooks/useGetUserInfo";
 import UserProfileCard from "../UserProfileCard/UserProfileCard";
 import WalletSection from "../WalletSection/WalletSection";
-import UserInfoLoader from "@/components/atoms/skeleton/UserInfoLoader";
 import SessionsSection from "../SessionsSection/SessionsSection";
 import UserLogsSection from "../UserLogsSection/UserLogsSection";
 import SecuritySection from "../SecuritySection/SecuritySection";
 import UserTransactionTable from "../UserTransactionTable/UserTransactionTable";
-
-import { userBreadcrumb } from "../../constants";
-import { useGetUserInfo } from "../../hooks/useGetUserInfo";
 import UserReferralSection from "../UserReferralSection/UserReferralSection";
-import { canViewTransactions } from "@/lib/helpers/canViewTransactions";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store";
-import RestrictionEmptyState from "@/components/atoms/RestrictionEmptyState/RestrictionEmptyState";
 import UserDisputeSection from "../UserDisputeSection/UserDisputeSection";
-import { StatementOfAccount } from "@/components/molecules/StatementOfAccount/StatementOfAccount";
 import UserCardTransactions from "../UserCardTransactions/UserCardTransactions";
-import FlagUserAlert from "@/components/molecules/FlagUserAlert/FlagUserAlert";
+import UserActivity from "../UserActivity/UserActivity";
 
-const UserInfoWrapper = ({ userId }: { userId: string }) => {
+export default function UserInfoWrapper({ userId }: { userId: string }) {
   const { user } = useSelector((state: RootState) => state.auth);
   const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-    currentPage,
-    limit,
-    setLimit,
-    nextPage,
-    prevPage,
-    goToFirstPage,
-    goToLastPage,
-    isFirstPage,
-    isLastPage,
-    setCurrentPage,
+    data, isLoading, isError, retryUserInfo, resetTabPage,
+    currentPage, limit, setLimit, nextPage, prevPage,
+    goToFirstPage, goToLastPage, isFirstPage, isLastPage, setCurrentPage,
   } = useGetUserInfo(userId);
-
   const currentAdminId = user?.id || "";
+  const pagination = { currentPage, limit, setLimit, nextPage, prevPage, goToFirstPage, goToLastPage, isFirstPage, isLastPage, setCurrentPage };
 
-  return (
-    <div className="space-y-4">
-      {isError && <ErrorFallback reset={() => { void refetch(); }} message="Unable to load user details. Please try again." />}
-      <PageTitle
-        title="User Details"
-        description="Comprehensive user information and activity"
-      />
-      <AppBreadcrumb items={userBreadcrumb} />
-      {isLoading ? (
-        <UserInfoLoader />
-      ) : (
-        <>
-          <FlagUserAlert
-            userId={userId}
-            email={data?.user?.email}
-            isSuspicious={data?.user?.user_flagged}
-            flagReason={data?.user_status?.reason}
-          />
-          <ErrorBoundary resetKey={data}>
-            <UserProfileCard user={data?.user} kycId={data?.kyc?.kyc_id} />
-          </ErrorBoundary>
-        </>
-      )}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-          Wallet Overview
-        </h2>
-        <ErrorBoundary resetKey={data}>
-          <WalletSection
-            isLoading={isLoading}
-            wallet={data?.wallet}
-            commissionBalance={data?.commissionBalance}
-            referralCount={data?.referrals?.referralCount || 0}
-            userId={userId}
-            currentAdminId={currentAdminId}
-          />
-        </ErrorBoundary>
-      </div>
-
-      {canViewTransactions(userId, currentAdminId) ? (
-        <>
-          <ErrorBoundary resetKey={data}>
-            <StatementOfAccount userId={userId} />
-          </ErrorBoundary>
-          <ErrorBoundary resetKey={data}>
-            <UserTransactionTable
-              isLoading={isLoading}
-              data={data?.transactions?.transactions}
-              totalPages={data?.transactions?.totalPages}
-              currentPage={currentPage}
-              prevPage={prevPage}
-              nextPage={nextPage}
-              goToFirstPage={goToFirstPage}
-              goToLastPage={goToLastPage}
-              isFirstPage={isFirstPage}
-              isLastPage={isLastPage}
-              limit={limit}
-              setCurrentPage={setCurrentPage}
-              setLimit={setLimit}
-            />
-          </ErrorBoundary>
-        </>
-      ) : (
-        <RestrictionEmptyState />
-      )}
+  return <div className="min-w-0 space-y-6">
+    <PageTitle title="User Details" description="Profile, account activity, and support in one place" />
+    <AppBreadcrumb items={userBreadcrumb} />
+    {isError && <ErrorFallback reset={retryUserInfo} message="Unable to load user details. Please try again." />}
+    {isLoading ? <UserInfoLoader /> : !isError && <>
       <ErrorBoundary resetKey={data}>
-        <UserCardTransactions
-          totalPages={1}
-          currentPage={currentPage}
-          prevPage={prevPage}
-          nextPage={nextPage}
-          goToFirstPage={goToFirstPage}
-          goToLastPage={goToLastPage}
-          isFirstPage={isFirstPage}
-          isLastPage={isLastPage}
-          limit={limit}
-          setLimit={setLimit}
-          isLoading={isLoading}
-          cardTransactions={data?.cards?.transactions}
-          setCurrentPage={setCurrentPage}
-        />
+        <UserProfileCard user={data?.user} kycId={data?.kyc?.kyc_id} isFlagged={data?.user?.user_flagged} flagReason={data?.user_status?.reason} />
       </ErrorBoundary>
-      <ErrorBoundary resetKey={data}>
-        <UserReferralSection
-          totalPages={1}
-          currentPage={currentPage}
-          prevPage={prevPage}
-          nextPage={nextPage}
-          goToFirstPage={goToFirstPage}
-          goToLastPage={goToLastPage}
-          isFirstPage={isFirstPage}
-          isLastPage={isLastPage}
-          limit={limit}
-          setLimit={setLimit}
-          isLoading={isLoading}
-          userReferrals={data?.referrals?.referrals}
-          setCurrentPage={setCurrentPage}
-        />
-      </ErrorBoundary>
-      <ErrorBoundary resetKey={data}>
-        <UserDisputeSection
-          userDisputes={data?.disputes?.disputes}
-          totalPages={data?.disputes?.totalPages}
-          currentPage={currentPage}
-          prevPage={prevPage}
-          nextPage={nextPage}
-          goToFirstPage={goToFirstPage}
-          goToLastPage={goToLastPage}
-          isFirstPage={isFirstPage}
-          isLastPage={isLastPage}
-          limit={limit}
-          setLimit={setLimit}
-          isLoading={isLoading}
-          setCurrentPage={setCurrentPage}
-        />
-      </ErrorBoundary>
-      {isLoading ? (
-        <>
-          <UserInfoLoader />
-          <UserInfoLoader />
-        </>
-      ) : (
-        <>
-          <ErrorBoundary resetKey={data}>
-            <SessionsSection sessions={data?.sessions?.sessions} />
-          </ErrorBoundary>
-          <ErrorBoundary resetKey={data}>
-            <UserLogsSection userLogs={data?.userLogs?.logs} />
-          </ErrorBoundary>
-          <ErrorBoundary resetKey={data}>
-            <SecuritySection securityQuestions={data?.securityQuestions} />
-          </ErrorBoundary>
-        </>
-      )}
-    </div>
-  );
-};
-
-export default UserInfoWrapper;
+    </>}
+    <DynamicTabs defaultTab="overview" urlKey="userTab" onClick={resetTabPage} tabs={[
+      {
+        value: "overview", label: "Wallet", content: <section className="min-w-0 space-y-4" aria-label="Wallet overview">
+          <h2 className="text-lg font-semibold">Wallet overview</h2>
+          <WalletSection isLoading={isLoading} wallet={data?.wallet} commissionBalance={data?.commissionBalance} referralCount={data?.referrals?.referralCount || 0} userId={userId} currentAdminId={currentAdminId} />
+        </section>,
+      },
+      { value: "activity", label: "Activity · Demo", content: <UserActivity key={userId} /> },
+      {
+        value: "transactions", label: "Transactions", content: canViewTransactions(userId, currentAdminId) ? <section className="min-w-0 space-y-5" aria-label="User transactions">
+          <ErrorBoundary resetKey={data}><StatementOfAccount userId={userId} /></ErrorBoundary>
+          <UserTransactionTable {...pagination} isLoading={isLoading} data={data?.transactions?.transactions} totalPages={data?.transactions?.totalPages} />
+        </section> : <RestrictionEmptyState />,
+      },
+      {
+        value: "cards", label: "Cards", content: <section className="min-w-0" aria-label="Card transactions">
+          <UserCardTransactions {...pagination} totalPages={1} isLoading={isLoading} cardTransactions={data?.cards?.transactions} />
+        </section>,
+      },
+      {
+        value: "referrals", label: "Referrals", content: <section className="min-w-0" aria-label="User referrals">
+          <UserReferralSection {...pagination} totalPages={1} isLoading={isLoading} userReferrals={data?.referrals?.referrals} />
+        </section>,
+      },
+      {
+        value: "disputes", label: "Disputes", content: <section className="min-w-0" aria-label="User disputes">
+          <UserDisputeSection {...pagination} userDisputes={data?.disputes?.disputes} totalPages={data?.disputes?.totalPages} isLoading={isLoading} />
+        </section>,
+      },
+      {
+        value: "sessions", label: "Sessions & logs", content: isLoading ? <UserInfoLoader /> : <section className="min-w-0 space-y-5" aria-label="Sessions and audit logs">
+          <ErrorBoundary resetKey={data}><SessionsSection sessions={data?.sessions?.sessions} /></ErrorBoundary>
+          <ErrorBoundary resetKey={data}><UserLogsSection userLogs={data?.userLogs?.logs} /></ErrorBoundary>
+        </section>,
+      },
+      { value: "security", label: "Security", content: isLoading ? <UserInfoLoader /> : <SecuritySection securityQuestions={data?.securityQuestions} /> },
+    ]} />
+  </div>;
+}

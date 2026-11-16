@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { QueryClient, useMutation } from "@tanstack/react-query";
 
 import { createPermission } from "../api/permission";

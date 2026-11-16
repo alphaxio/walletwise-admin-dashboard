@@ -10,7 +10,7 @@ import { DateFilterValue, DateRange, FilterOption } from "@/lib/types";
 
 import DropdownMenu from "@/components/molecules/DropdownMenu/DropdownMenu";
 import DoubleCalendarPanel from "@/components/molecules/DoubleCalendarPanel/DoubleCalendarPanel";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { menuItems } from "@/lib/constants/dateFilter";
 
 interface DateFilterProps {

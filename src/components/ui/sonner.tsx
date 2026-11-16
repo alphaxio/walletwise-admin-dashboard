@@ -1,5 +1,8 @@
 "use client"
 
+import { useEffect } from "react"
+import { usePathname } from "next/navigation"
+import { toast } from "@/lib/toast"
 import {
   CircleCheckIcon,
   InfoIcon,
@@ -12,10 +15,19 @@ import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+  const pathname = usePathname()
+
+  useEffect(() => {
+    return () => { toast.dismiss() }
+  }, [pathname])
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
+      position="top-right"
+      richColors
+      closeButton
+      duration={10000}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4" />,

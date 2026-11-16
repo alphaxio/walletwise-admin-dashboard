@@ -1,4 +1,3 @@
-import { useState } from "react";
 
 import { ShieldCheck } from "lucide-react";
 
@@ -12,7 +11,6 @@ const SecuritySection = ({
 }: {
   securityQuestions: SecurityQuestionType[];
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-sm overflow-hidden">
@@ -22,11 +20,9 @@ const SecuritySection = ({
         subtitle={`${securityQuestions?.length} question${
           securityQuestions?.length !== 1 ? "s" : ""
         }`}
-        isExpanded={isExpanded}
-        onToggle={() => setIsExpanded(!isExpanded)}
       />
 
-      {isExpanded && (
+      {(
         <div className="p-6 pt-0 space-y-4">
           {securityQuestions?.map((question, index) => (
             <SecurityQuestionCard
