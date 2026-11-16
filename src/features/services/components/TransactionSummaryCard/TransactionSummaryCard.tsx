@@ -32,7 +32,8 @@ const TransactionSummaryCard = ({ data }: { data: ServiceData }) => {
                   minimumFractionDigits: 2,
                 })}
               </span>
-              {dollarAmount && (
+              {/* NaN/0 when the transaction has no dollar amount: show nothing */}
+              {dollarAmount > 0 && (
                 <span className="text-2xl font-bold text-foreground">
                   $
                   {dollarAmount
@@ -87,7 +88,7 @@ const TransactionSummaryCard = ({ data }: { data: ServiceData }) => {
               })}
             </span>
           </div>
-          {exchnageRate && (
+          {exchnageRate > 0 && (
             <div className="flex justify-between items-center text-sm">
               <span className="text-muted-foreground flex items-center gap-1.5">
                 <ExpandIcon className="w-4 h-4" />
