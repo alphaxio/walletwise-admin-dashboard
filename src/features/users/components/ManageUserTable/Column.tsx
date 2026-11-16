@@ -10,12 +10,13 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import StatusBubble from "@/components/atoms/StatusBubble/StatusBubble";
 import ColumnActionDropdown from "@/components/molecules/ColumnActionDropdown/ColumnActionDropdown";
 
-import { AdminType } from "../../types";
+import { UserType } from "../../types";
+import { getProfileStatus } from "../../helpers/profile";
 import TableDate from "@/components/atoms/TableDate/TableDate";
 
-const columnHelper = createColumnHelper();
+const columnHelper = createColumnHelper<UserType>();
 
-interface ColumnProps<TData = unknown> {
+interface ColumnProps<TData = UserType> {
   table: Table<TData>;
 }
 
@@ -32,7 +33,7 @@ export const Column = [
         aria-label="Select all"
       />
     ),
-    cell: ({ row }: CellContext<AdminType, unknown>) => (
+    cell: ({ row }: CellContext<UserType, unknown>) => (
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -128,26 +129,13 @@ export const Column = [
       );
     },
     cell: ({ row }) => {
-      const status = row.getValue("account_status") as string;
-      const isBlacklisted = row.getValue("is_blacklisted") as string;
-
-      const newStatus = isBlacklisted
-        ? "suspended"
-        : status === "unknown"
-          ? "Virtual account"
-          : status === "inactive"
-            ? "suspended"
-            : status === "active"
-              ? "Personalized account"
-              : status;
-
-      return <StatusBubble status={newStatus} />;
+      return <StatusBubble status={getProfileStatus(row.original)} />;
     },
   }),
 
   {
     id: "actions",
-    cell: ({ row }: CellContext<AdminType, unknown>) => {
+    cell: ({ row }: CellContext<UserType, unknown>) => {
       const user = row.original;
 
       return (

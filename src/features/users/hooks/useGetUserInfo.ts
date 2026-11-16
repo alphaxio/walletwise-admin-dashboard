@@ -30,7 +30,12 @@ export const useGetUserInfo = (userId: string) => {
     retry: 1,
   });
 
+  const retryUserInfo = () => { void refetch(); };
+  const resetTabPage = () => setCurrentPage(1);
+
   return {
+    resetTabPage,
+    retryUserInfo,
     data,
     isLoading,
     isError,

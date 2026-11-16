@@ -1,4 +1,3 @@
-import { useState } from "react";
 
 import { Monitor } from "lucide-react";
 
@@ -10,7 +9,6 @@ import SessionCard from "../SessionCard/SessionCard";
 import UserInfoLoader from "@/components/atoms/skeleton/UserInfoLoader";
 
 const SessionsSection = ({ sessions }: { sessions: SessionType[] }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
   const { loading, logs } = useFetchLocation(sessions);
 
   return (
@@ -22,14 +20,12 @@ const SessionsSection = ({ sessions }: { sessions: SessionType[] }) => {
           <SectionHeader
             icon={Monitor}
             title="Active Sessions"
-            subtitle={`${sessions.length} session${
-              sessions.length !== 1 ? "s" : ""
+            subtitle={`${(sessions?.length ?? 0)} session${
+              (sessions?.length ?? 0) !== 1 ? "s" : ""
             }`}
-            isExpanded={isExpanded}
-            onToggle={() => setIsExpanded(!isExpanded)}
           />
 
-          {isExpanded && (
+          {(
             <div className="p-6 pt-0">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {logs?.map((session) => (

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import { User } from "lucide-react";
 
@@ -41,7 +40,6 @@ const UserDisputeSection = ({
   isLoading: boolean;
   setCurrentPage: (page: number) => void;
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   const typedColumns = Column as ColumnDef<unknown>[];
 
@@ -53,10 +51,8 @@ const UserDisputeSection = ({
         subtitle={`${userDisputes?.length} dispute${
           userDisputes?.length !== 1 ? "s" : ""
         }`}
-        isExpanded={isExpanded}
-        onToggle={() => setIsExpanded(!isExpanded)}
       />
-      {isExpanded && (
+      {(
         <div>
           {isLoading ? (
             <TableLoader />
