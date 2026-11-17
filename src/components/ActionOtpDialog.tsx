@@ -39,7 +39,6 @@ const apiMessage = (error: unknown, fallback: string) => {
 
 /**
  * Asks for an approval code when the API says a sensitive action needs one.
- * The code is emailed to the approvers, who read it to the admin doing the action.
  * Mounted once in the root layout.
  */
 export default function ActionOtpDialog() {
@@ -132,7 +131,7 @@ export default function ActionOtpDialog() {
         <DialogHeader>
           <DialogTitle>Approval needed</DialogTitle>
           <DialogDescription>
-            This {label} needs an approval code. The code is emailed to the approvers. Ask one of them for it.
+            This {label} needs an approval code. Send the code, then ask an admin for it.
           </DialogDescription>
         </DialogHeader>
 
@@ -173,7 +172,7 @@ export default function ActionOtpDialog() {
             </>
           ) : (
             <Button onClick={sendCode} disabled={busy}>
-              {busy ? "Sending..." : "Send code to approvers"}
+              {busy ? "Sending..." : "Send code"}
             </Button>
           )}
         </DialogFooter>
