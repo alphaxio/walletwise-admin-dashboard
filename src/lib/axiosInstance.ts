@@ -1,5 +1,6 @@
 import axios from "axios";
 
+import { installActionOtpInterceptor } from "./actionOtp";
 import { readAuthCookie } from "./helpers/cookie";
 
 const baseUrl = process.env.NEXT_PUBLIC_BACKEND_BASE_URL;
@@ -22,3 +23,6 @@ axiosInstance.interceptors.request.use(
     throw new Error(err);
   }
 );
+
+// Sensitive actions that need an approval code open the approval dialog and retry.
+installActionOtpInterceptor(axiosInstance);
