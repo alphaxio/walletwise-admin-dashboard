@@ -46,6 +46,7 @@ const TableWrapper = ({
   sortOptions,
   setCurrentPage,
   isLoading,
+  showExport = true,
 }: TableWrapperProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -90,6 +91,7 @@ const TableWrapper = ({
           table={table}
           sortOptions={sortOptions}
           rowSelection={rowSelection}
+          showExport={showExport}
         />
       </div>
       {isLoading ? (
