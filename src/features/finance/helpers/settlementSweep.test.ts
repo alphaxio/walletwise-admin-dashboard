@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chunk, defaultSelection, isSweepable, needsReview, summarizeScan } from "./settlementSweep";
+import { allSweepable, chunk, defaultSelection, isSweepable, needsReview, summarizeScan } from "./settlementSweep";
 import type { SweepAccountRow } from "../types/settlementSweep";
 
 const row = (over: Partial<SweepAccountRow>): SweepAccountRow => ({
@@ -40,4 +40,22 @@ describe("defaultSelection", () => {
 
 describe("chunk", () => {
   it("splits into groups", () => expect(chunk([1, 2, 3, 4, 5, 6, 7], 5)).toEqual([[1, 2, 3, 4, 5], [6, 7]]));
+});
+
+describe("allSweepable", () => {
+  it("ticks every movable row, including needs review, and nothing else", () => {
+    const rows = [
+      row({ email: "safe" }),
+      row({ email: "review", gap: 5000 }),
+      row({ email: "short", gap: -10 }),
+      row({ email: "tiny", gap: 0.5 }),
+      row({ email: "active", gap: 300, recentActivity: true }),
+      row({ email: "unread", safeHavenBalance: null, gap: null, error: "down" }),
+    ];
+    expect([...allSweepable(rows, 1)].sort()).toEqual(["review", "safe"]);
+    expect([...defaultSelection(rows, 1)]).toEqual(["safe"]);
+  });
+  it("respects the minimum to move", () => {
+    expect([...allSweepable([row({ email: "x", gap: 50 })], 100)]).toEqual([]);
+  });
 });
