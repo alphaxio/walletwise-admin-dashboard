@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useRunSweep, useSweepScan } from "../../hooks/useSettlementSweep";
-import { defaultSelection, isSweepable, needsReview, summarizeScan } from "../../helpers/settlementSweep";
+import { allSweepable, defaultSelection, isSweepable, needsReview, summarizeScan } from "../../helpers/settlementSweep";
 import { formatNaira, round2 } from "../../helpers/walletAdjustments";
 import type { SweepAccountRow } from "../../types/settlementSweep";
 import SweepHistory from "./SweepHistory";
@@ -179,6 +179,15 @@ export default function SettlementSweep() {
                 onClick={() => setSelected(defaultSelection(scan.rows, min))}
               >
                 Tick all safe rows
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={!scanDone}
+                onClick={() => setSelected(allSweepable(scan.rows, min))}
+                title="Ticks every account where SafeHaven is higher, including needs review. Short, under the minimum and active-last-hour accounts are never ticked."
+              >
+                Tick all rows
               </Button>
               <Button size="sm" variant="outline" onClick={() => setSelected(new Set())}>Clear</Button>
             </div>

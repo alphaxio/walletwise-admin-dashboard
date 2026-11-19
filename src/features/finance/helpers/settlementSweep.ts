@@ -56,6 +56,10 @@ export const needsReview = (row: SweepAccountRow) =>
 export const isSweepable = (row: SweepAccountRow, minAmount: number) =>
   row.gap !== null && row.gap >= Math.max(minAmount, 1) && !row.recentActivity && !row.error;
 
+/** Every row that can be moved, including "needs review" rows. */
+export const allSweepable = (rows: SweepAccountRow[], minAmount: number) =>
+  new Set(rows.filter((r) => isSweepable(r, minAmount)).map((r) => r.email));
+
 /** Rows ticked by default: sweepable and fully explained by recorded spending. */
 export const defaultSelection = (rows: SweepAccountRow[], minAmount: number) =>
   new Set(rows.filter((r) => isSweepable(r, minAmount) && !needsReview(r)).map((r) => r.email));
