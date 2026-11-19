@@ -8,6 +8,7 @@ interface ServiceEarningsSummaryProps<TData = unknown> {
   isLoading: boolean;
   totalRevenue: number;
   totalProfit: number;
+  totalInappRevenue: number;
   data: TData[];
   totalPages: number;
   currentPage: number;
@@ -28,6 +29,7 @@ const ServiceEarningsSummary = ({
   isLoading,
   totalRevenue,
   totalProfit,
+  totalInappRevenue,
   currentPage,
   prevPage,
   nextPage,
@@ -47,6 +49,7 @@ const ServiceEarningsSummary = ({
         isLoading={isLoading}
         totalRevenue={totalRevenue}
         totalProfit={totalProfit}
+        totalInappRevenue={totalInappRevenue}
       />
       <EarningsTable
         data={data}

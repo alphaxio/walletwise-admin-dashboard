@@ -12,7 +12,7 @@ const chartConfig = {
 export default function ActivityCharts({ state }: { state: UserActivityState }) {
   return (
     <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2">
-      <Card className="min-w-0">
+      <Card className="min-w-0 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
         <CardHeader>
           <CardTitle className="text-base">Activity by {state.period === 'daily' ? 'hour' : 'day'}</CardTitle>
         </CardHeader>
@@ -30,19 +30,19 @@ export default function ActivityCharts({ state }: { state: UserActivityState }) 
           </ChartContainer>
         </CardContent>
       </Card>
-      <Card className="min-w-0">
+      <Card className="min-w-0 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100">
         <CardHeader><CardTitle className="text-base">Spent by service</CardTitle></CardHeader>
         <CardContent className="space-y-5">
           {state.services.map(service => (
             <div key={service.service} className="grid grid-cols-[5rem_minmax(0,1fr)] items-center gap-3 sm:grid-cols-[5rem_minmax(0,1fr)_7rem]">
-              <span className="text-sm text-muted-foreground">{service.service}</span>
+              <span className="text-sm text-muted-foreground dark:text-gray-400">{service.service}</span>
               <div
                 role="meter"
                 aria-label={`${service.service} share of spend`}
                 aria-valuenow={service.sharePercent}
                 aria-valuemin={0}
                 aria-valuemax={100}
-                className="h-2 overflow-hidden rounded-full bg-muted"
+                className="h-2 overflow-hidden rounded-full bg-muted dark:bg-gray-700"
               >
                 <div className="h-full rounded-full" style={{ width: `${service.sharePercent}%`, backgroundColor: service.color }} />
               </div>

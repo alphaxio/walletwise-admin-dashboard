@@ -50,7 +50,7 @@ export default function UserInfoWrapper({ userId }: { userId: string }) {
           <WalletSection isLoading={isLoading} wallet={data?.wallet} commissionBalance={data?.commissionBalance} referralCount={data?.referrals?.referralCount || 0} userId={userId} currentAdminId={currentAdminId} />
         </section>,
       },
-      { value: "activity", label: "Activity · Demo", content: <UserActivity key={userId} /> },
+      { value: "activity", label: "Activity", content: <UserActivity key={userId} userId={userId} /> },
       {
         value: "transactions", label: "Transactions", content: canViewTransactions(userId, currentAdminId) ? <section className="min-w-0 space-y-5" aria-label="User transactions">
           <ErrorBoundary resetKey={data}><StatementOfAccount userId={userId} /></ErrorBoundary>

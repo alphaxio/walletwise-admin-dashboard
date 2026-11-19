@@ -14,19 +14,19 @@ export default function FlagUserAlert({ userId, email, isSuspicious, flagReason 
   const controls = useUserFlagControls(userId, email, isSuspicious);
 
   return <>
-    <div className={`rounded-xl border p-4 ${isSuspicious ? 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20' : 'border-border bg-background'}`}>
+    <div className={`rounded-xl border p-4 ${isSuspicious ? 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/20' : 'border-border bg-background dark:border-gray-700 dark:bg-gray-900'}`}>
       <div className="flex items-start gap-3">
-        <div className={`rounded-lg p-2 ${isSuspicious ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-muted text-muted-foreground'}`}>
+        <div className={`rounded-lg p-2 ${isSuspicious ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' : 'bg-muted dark:bg-gray-800 text-muted-foreground dark:text-gray-400'}`}>
           {isSuspicious ? <Flag className="size-4" /> : <ShieldCheck className="size-4" />}
         </div>
         <div className="min-w-0 space-y-1">
           <p className="text-sm font-semibold">{isSuspicious ? 'Flagged for review' : 'No user flag'}</p>
-          <p className="break-words text-xs leading-relaxed text-muted-foreground">
+          <p className="break-words text-xs leading-relaxed text-muted-foreground dark:text-gray-400">
             {isSuspicious ? flagReason || 'This account has been flagged for administrative review.' : 'Flag this account if it needs further review.'}
           </p>
         </div>
       </div>
-      <Button variant="outline" size="sm" className="mt-4 w-full" onClick={controls.openFlagDialog} disabled={controls.isUpdating}>
+      <Button variant="outline" size="sm" className="mt-4 w-full dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-700" onClick={controls.openFlagDialog} disabled={controls.isUpdating}>
         <Flag className="size-4" /> {isSuspicious ? 'Remove user flag' : 'Flag user'}
       </Button>
     </div>

@@ -1,49 +1,46 @@
-import { addDays, format, parseISO } from 'date-fns';
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
-import type { ActivityPeriod } from '../types/activity';
-import { DEMO_ACTIVITY, DEMO_ACTIVITY_DATE } from '../constants/activity';
-import { compareActivity, activityRange, activityServices, activityBuckets, exportActivity, selectActivity, shiftActivityDate, summarizeActivity } from '../helpers/activity';
+import { useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
+import { addDays, format, parseISO } from 'date-fns';
+import type { ActivityPeriod, UserActivityRecord } from '../types/activity';
+import { getUserActivity } from '../api/activity';
+import { ActivityResponseError } from '../helpers/activityResponse';
+import { activityComparisonLabels, activityRange, lagosToday, shiftActivityDate } from '../helpers/activity';
+import { useActivityLog } from './useActivityLog';
 
-export function useUserActivity() {
+const EMPTY_RECORDS: UserActivityRecord[] = [];
+export function useUserActivity(userId: string, enabled = true) {
   const [period, setPeriod] = useState<ActivityPeriod>('daily');
-  const [date, setDate] = useState(DEMO_ACTIVITY_DATE);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
-  const [sort, setSort] = useState('newest');
+  const [date, setDate] = useState(lagosToday);
   const [refreshedAt, setRefreshedAt] = useState<string | null>(null);
-  const records = selectActivity(DEMO_ACTIVITY, date, period);
-  const filtered = records.filter(row => (status === 'all' || row.status === status) && `${row.description} ${row.channel} ${row.service} ${row.kind}`.toLowerCase().includes(search.toLowerCase())).sort((a, b) => sort === 'amount' ? (b.amountMinor ?? -1) - (a.amountMinor ?? -1) : sort === 'oldest' ? a.occurredAt.localeCompare(b.occurredAt) : b.occurredAt.localeCompare(a.occurredAt));
-  const totalPages = Math.max(1, Math.ceil(filtered.length / limit));
-  function resetPage() { setCurrentPage(1); }
-  function changePeriod(value: ActivityPeriod) { setPeriod(value); resetPage(); }
-  function changeDate(event: ChangeEvent<HTMLInputElement>) { if (event.target.value) { setDate(event.target.value); resetPage(); } }
-  function previous() { setDate(shiftActivityDate(date, period, -1)); resetPage(); }
-  function next() { setDate(shiftActivityDate(date, period, 1)); resetPage(); }
-  function refresh() { setRefreshedAt(new Date().toLocaleTimeString('en-GB', { timeZone: 'Africa/Lagos' })); }
-  function download() { exportActivity(filtered, date); }
-  function changeSearch(event: ChangeEvent<HTMLInputElement>) { setSearch(event.target.value); resetPage(); }
-  function changeStatus(event: ChangeEvent<HTMLSelectElement>) { setStatus(event.target.value); resetPage(); }
-  function changeSort(event: ChangeEvent<HTMLSelectElement>) { setSort(event.target.value); resetPage(); }
-  function changeLimit(value: number) { setLimit(value); resetPage(); }
-  function prevPage() { setCurrentPage(page => Math.max(1, page - 1)); }
-  function nextPage() { setCurrentPage(page => Math.min(totalPages, page + 1)); }
-  function changePage(value: number) { setCurrentPage(Math.max(1, Math.min(totalPages, Math.trunc(value) || 1))); }
-  function goToLastPage() { setCurrentPage(totalPages); }
-  function goToFirstPage() { resetPage(); }
-  function isFirstPage() { return currentPage === 1; }
-  function isLastPage() { return currentPage >= totalPages; }
-  const comparison = compareActivity(summarizeActivity(records), selectActivity(DEMO_ACTIVITY, shiftActivityDate(date, period, -1), period), period);
-  const periodActions = { daily: () => changePeriod('daily'), weekly: () => changePeriod('weekly'), monthly: () => changePeriod('monthly') };
-  const displayEnd = format(addDays(parseISO(activityRange(date, period).end), -1), 'yyyy-MM-dd');
+  const query = useQuery({
+    queryKey: ['user-activity', userId, period, date],
+    queryFn: ({ signal }) => getUserActivity({ userId, period, date, signal }),
+    enabled: enabled && Boolean(userId), staleTime: 30000, refetchOnWindowFocus: false,
+    retry: (attempt, error) => !(error instanceof ActivityResponseError) && !(isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0)) && attempt < 1,
+  });
+  const data = enabled ? query.data : undefined;
+  const log = useActivityLog(data?.records ?? EMPTY_RECORDS, date);
+  function changePeriod(value: ActivityPeriod) { setPeriod(value); setRefreshedAt(null); log.resetPage(); }
+  function changeDate(event: ChangeEvent<HTMLInputElement>) { if (event.target.value) { setDate(event.target.value); setRefreshedAt(null); log.resetPage(); } }
+  function previous() { setDate(shiftActivityDate(date, period, -1)); setRefreshedAt(null); log.resetPage(); }
+  function next() { setDate(shiftActivityDate(date, period, 1)); setRefreshedAt(null); log.resetPage(); }
+  async function refresh() {
+    const result = await query.refetch();
+    if (!result.error) setRefreshedAt(new Date().toLocaleTimeString('en-GB', { timeZone: 'Africa/Lagos' }));
+  }
+  const range = data?.range ?? activityRange(date, period);
   return {
-    periodActions, displayEnd, comparison,
-    period, date, search, status, sort, changeSort, refreshedAt, changePeriod, changeDate, previous, next, refresh, download, changeSearch, changeStatus,
-    range: activityRange(date, period), summary: summarizeActivity(records), buckets: activityBuckets(records, date, period), services: activityServices(records),
-    rows: filtered.slice((currentPage - 1) * limit, currentPage * limit), filteredCount: filtered.length,
-    pagination: { totalPages, currentPage, limit, setLimit: changeLimit, setCurrentPage: changePage, prevPage, nextPage, goToFirstPage, goToLastPage, isFirstPage, isLastPage },
+    ...log, period, date, refreshedAt, changeDate, previous, next, refresh,
+    periodActions: { daily: () => changePeriod('daily'), weekly: () => changePeriod('weekly'), monthly: () => changePeriod('monthly') },
+    range, displayEnd: format(addDays(parseISO(range.end), -1), 'yyyy-MM-dd'),
+    summary: data?.summary, context: data?.context, comparison: activityComparisonLabels(data?.comparison, period),
+    buckets: data?.buckets ?? [], services: data?.services ?? [], recordsTruncated: data?.recordsTruncated ?? false,
+    loadedCount: data?.records.length ?? 0,
+    isPending: query.isPending, isFetching: query.isFetching, isError: query.isError,
+    isForbidden: isAxiosError(query.error) && query.error.response?.status === 403,
+    errorMessage: query.error instanceof ActivityResponseError ? query.error.message : isAxiosError(query.error) && query.error.response?.status === 401 ? 'Your session has expired. Sign in again to view activity.' : 'Unable to load user activity. Please try again.',
   };
 }
 export type UserActivityState = ReturnType<typeof useUserActivity>;

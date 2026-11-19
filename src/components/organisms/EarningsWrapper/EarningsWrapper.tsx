@@ -26,6 +26,7 @@ const EarningsWrapper = () => {
   } = useGetEarnings();
 
   const totalRevenue = data?.overall?.total_revenue || 0;
+  const totalInappRevenue = data?.overall?.total_inapp_revenue ?? 0;
   const totalProfit = data?.overall?.total_profit || 0;
 
   const content = (
@@ -34,6 +35,7 @@ const EarningsWrapper = () => {
       totalPages={data?.pagination?.total_pages}
       totalRevenue={totalRevenue}
       totalProfit={totalProfit}
+      totalInappRevenue={totalInappRevenue}
       isLoading={isLoading}
       currentPage={currentPage}
       prevPage={prevPage}

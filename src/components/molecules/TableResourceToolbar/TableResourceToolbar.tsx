@@ -21,6 +21,7 @@ interface TableResourceToolbarProps<TData = unknown> {
   table: Table<TData>;
   sortOptions?: SortOption[];
   rowSelection: RowSelectionState;
+  showExport?: boolean;
 }
 
 const TableResourceToolbar = ({
@@ -34,6 +35,7 @@ const TableResourceToolbar = ({
   table,
   sortOptions,
   rowSelection,
+  showExport = true,
 }: TableResourceToolbarProps) => {
   const showSearch =
     search !== undefined &&
@@ -73,7 +75,7 @@ const TableResourceToolbar = ({
             onSubmit={onSubmit}
           />
         )}
-        <ExportButton table={table} rowSelection={rowSelection} />
+        {showExport && <ExportButton table={table} rowSelection={rowSelection} />}
         <ColumnSorting table={table} />
       </div>
     </div>

@@ -59,6 +59,7 @@ export interface TableWrapperProps<TData = unknown> {
   sortOptions?: SortOption[];
   setCurrentPage?: (page: number) => void;
   isLoading?: boolean;
+  showExport?: boolean;
 }
 
 export interface optionsType {
