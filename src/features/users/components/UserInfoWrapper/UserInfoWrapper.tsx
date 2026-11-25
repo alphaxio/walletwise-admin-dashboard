@@ -32,6 +32,7 @@ export default function UserInfoWrapper({ userId }: { userId: string }) {
     goToFirstPage, goToLastPage, isFirstPage, isLastPage, setCurrentPage,
   } = useGetUserInfo(userId);
   const currentAdminId = user?.id || "";
+  const canViewFinancialDetails = canViewTransactions(userId, currentAdminId);
   const pagination = { currentPage, limit, setLimit, nextPage, prevPage, goToFirstPage, goToLastPage, isFirstPage, isLastPage, setCurrentPage };
 
   return <div className="min-w-0 space-y-6">
@@ -45,22 +46,22 @@ export default function UserInfoWrapper({ userId }: { userId: string }) {
     </>}
     <DynamicTabs defaultTab="overview" urlKey="userTab" onClick={resetTabPage} tabs={[
       {
-        value: "overview", label: "Wallet", content: <section className="min-w-0 space-y-4" aria-label="Wallet overview">
+        value: "overview", label: "Wallet", content: canViewFinancialDetails ? <section className="min-w-0 space-y-4" aria-label="Wallet overview">
           <h2 className="text-lg font-semibold">Wallet overview</h2>
           <WalletSection isLoading={isLoading} wallet={data?.wallet} commissionBalance={data?.commissionBalance} referralCount={data?.referrals?.referralCount || 0} userId={userId} currentAdminId={currentAdminId} />
-        </section>,
+        </section> : <RestrictionEmptyState />,
       },
-      { value: "activity", label: "Activity", content: <UserActivity key={userId} userId={userId} /> },
+      { value: "activity", label: "Activity", content: canViewFinancialDetails ? <UserActivity key={userId} userId={userId} /> : <RestrictionEmptyState /> },
       {
-        value: "transactions", label: "Transactions", content: canViewTransactions(userId, currentAdminId) ? <section className="min-w-0 space-y-5" aria-label="User transactions">
+        value: "transactions", label: "Transactions", content: canViewFinancialDetails ? <section className="min-w-0 space-y-5" aria-label="User transactions">
           <ErrorBoundary resetKey={data}><StatementOfAccount userId={userId} /></ErrorBoundary>
           <UserTransactionTable {...pagination} isLoading={isLoading} data={data?.transactions?.transactions} totalPages={data?.transactions?.totalPages} />
         </section> : <RestrictionEmptyState />,
       },
       {
-        value: "cards", label: "Cards", content: <section className="min-w-0" aria-label="Card transactions">
+        value: "cards", label: "Cards", content: canViewFinancialDetails ? <section className="min-w-0" aria-label="Card transactions">
           <UserCardTransactions {...pagination} totalPages={1} isLoading={isLoading} cardTransactions={data?.cards?.transactions} />
-        </section>,
+        </section> : <RestrictionEmptyState />,
       },
       {
         value: "referrals", label: "Referrals", content: <section className="min-w-0" aria-label="User referrals">
