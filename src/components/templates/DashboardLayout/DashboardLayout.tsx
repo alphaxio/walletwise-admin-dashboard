@@ -8,6 +8,7 @@ import Container from "@/components/atoms/Container/Container";
 import Navbar from "@/components/organisms/Navbar/Navbar";
 import Sidebar from "@/components/organisms/Sidebar/Sidebar";
 import RestrictedEventAdminGuard from "@/components/RestrictedEventAdminGuard";
+import KillSwitchBanner from "@/components/KillSwitchBanner";
 
 const DashboardLayout = ({
   children,
@@ -37,7 +38,7 @@ const DashboardLayout = ({
           <main
             className={`flex-1 w-full max-w-full overflow-x-auto ${className}`}
           >
-            <Container className="xl:px-6"><ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary></Container>
+            <Container className="xl:px-6"><KillSwitchBanner /><ErrorBoundary resetKey={pathname}>{children}</ErrorBoundary></Container>
           </main>
         </div>
       </div>
